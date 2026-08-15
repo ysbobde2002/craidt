@@ -18,7 +18,7 @@ Without a Stripe key the charge is simulated; with `sk_test_…` it confirms Vis
 Commits made through Cursor are counted by **model**, using a `Model:` trailer in the commit message. The chart below is regenerated from git history on every push to `main`.
 
 <p align="left">
-  <img alt="Commits by Cursor model" src="assets/model-tracker.svg?v=pie" width="280" />
+  <img alt="Commits by Cursor model" src="assets/model-pie.svg" width="280" />
 </p>
 
 Slice size is share of commits, colored by model. Commits without a `Model:` trailer count as Grok.
@@ -64,4 +64,4 @@ EOF
 node scripts/generate-model-tracker.mjs
 ```
 
-That writes `assets/model-tracker.svg`. GitHub Actions runs the same command on push so the README chart stays current.
+That writes `assets/model-pie.svg`. GitHub Actions runs the same command on push so the README chart stays current.

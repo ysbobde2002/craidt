@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Builds assets/model-tracker.svg from git history.
+ * Builds assets/model-pie.svg from git history.
  *
  * Counts commits that carry a `Model:` trailer (e.g. `Model: Cursor Grok 4.6`).
  * Commits without a trailer count as Cursor Grok 4.6. Tracker-bot refreshes
@@ -16,7 +16,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const OUT = join(ROOT, "assets", "model-tracker.svg");
+const OUT = join(ROOT, "assets", "model-pie.svg");
 const SKIP_SUBJECT = /^chore:\s*refresh model tracker$/i;
 
 const SIZE = 420;
