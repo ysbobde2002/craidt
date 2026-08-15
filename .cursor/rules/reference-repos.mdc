@@ -35,4 +35,4 @@ Layers: ACP (agree) → x402/Stripe (settle) → ERC-8004 (who) → VI (was pay 
 - Treat clones as context, not this repo's git remote. Never `git push` from `.context/*`.
 - Do not commit `.context/`, `.env`, or wallet/Rain keys.
 - Prefer existing patterns from these repos (fail-closed, idempotent, no PII onchain) when building in `craidt`.
-- Rails in this repo: Stripe for purchase (not Rain), Base Sepolia for incentive/cashback (not Monad). Keep midnightx402 60/40 cashback and Net Human Cost.
+- Rails in this repo: Stripe for purchase (not Rain), Ethereum Sepolia for incentive/cashback and ERC-8004 identity (not Monad). Keep midnightx402 60/40 cashback and Net Human Cost.

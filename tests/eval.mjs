@@ -51,17 +51,17 @@ function readUi() {
   };
 }
 
-console.log("\n== rails: Stripe + Base, not Rain / Monad ==");
+console.log("\n== rails: Stripe + Ethereum Sepolia, not Rain / Monad ==");
 {
   const { html, js, settle } = readUi();
   assert("search bar is conversational", html.includes("It's raining and I want to go out"));
   assert("wallet tab is Stripe", html.includes("wallet-stripe") && html.includes("STRIPE TEST"));
-  assert("wallet tab is Base Sepolia", html.includes("BASE SEPOLIA") && html.includes("eip155:84532"));
+  assert("wallet tab is Ethereum Sepolia", html.includes("ETHEREUM SEPOLIA") && html.includes("eip155:11155111"));
   assert("phase rail is stripe not rain", html.includes('data-phase="stripe"') && !html.includes('data-phase="rain"'));
   assert("HTML has no Monad", !/\bMonad\b/.test(html));
   assert("HTML has no Rain card/settle", !/RAIN SCOPED|Rain →|via Rain|wallet-rain|wallet-monad/i.test(html));
   assert("app.js settles via Stripe", js.includes("Charging Stripe") && js.includes("received via Stripe"));
-  assert("app.js payout is Base", js.includes("on Base") && !/\bMonad\b/.test(js));
+  assert("app.js payout is Ethereum Sepolia", js.includes("Ethereum Sepolia") && !/\bMonad\b/.test(js));
   assert("settle.js uses stripe + base modules", settle.includes("chargePurchase") && settle.includes("recordBaseIncentive"));
   assert("settle.js has no Rain/Monad runtime", !/\bRain\b/.test(settle) && !/\bMonad\b/.test(settle));
 }
@@ -130,7 +130,7 @@ try {
   if (reachable) {
     const wallets = await get("/api/wallets");
     assert("wallets.stripe provider", wallets.stripe?.provider === "stripe");
-    assert("wallets.base is Sepolia", wallets.base?.chain === "Base Sepolia" && wallets.base?.chainId === 84532);
+    assert("wallets.base is Ethereum Sepolia", wallets.base?.chain === "Ethereum Sepolia" && wallets.base?.chainId === 11155111);
 
     const t1 = await post("/api/turn", { prompt: "it's a rainy day and I want to go out" });
     assert("HTTP turn 1 no bids", !t1.bids);

@@ -3,7 +3,7 @@
  * craidt demo — buyer | Shopify UCP
  *   npm run demo  → http://localhost:5180
  *
- * Purchase: Stripe (ACP-demo). Incentive/cashback: Base USDC, 60/40 from midnightx402.
+ * Purchase: Stripe (ACP-demo). Incentive/cashback: Ethereum Sepolia USDC, 60/40 from midnightx402.
  */
 
 import { createServer } from "node:http";
@@ -15,7 +15,7 @@ import { openaiConfigured } from "../src/openai.js";
 import { discoverProducts } from "../src/ucp.js";
 import { createAuction, getAuction, publicAuction, tickAuction } from "../src/auction.js";
 import { stripeWallet } from "../src/stripe.js";
-import { baseNetwork, fetchUsdcBalance } from "../src/base.js";
+import { baseNetwork, fetchEthBalance, fetchUsdcBalance } from "../src/base.js";
 import { settlePurchase } from "../src/settle.js";
 
 const UI_ROOT = join(ROOT, "ui");
@@ -120,15 +120,21 @@ const server = createServer(async (req, res) => {
 
     if (url.pathname === "/api/wallets" && req.method === "GET") {
       const network = baseNetwork();
-      const [buyerUsdc, sellerUsdc, agentUsdc] = await Promise.all([
+      const [buyerUsdc, sellerUsdc, agentUsdc, buyerEth] = await Promise.all([
         fetchUsdcBalance(network.buyerAddress).catch(() => null),
         fetchUsdcBalance(network.sellerAddress).catch(() => null),
         fetchUsdcBalance(network.agentAddress).catch(() => null),
+        fetchEthBalance(network.buyerAddress).catch(() => null),
       ]);
       sendJson(res, 200, {
         stripe: stripeWallet(),
         stripeLive: stripeConfigured(),
-        base: { ...network, buyerUsdc, sellerUsdc, agentUsdc },
+        scan8004: {
+          agentId: config.scan8004.agentId || null,
+          webBase: config.scan8004.webBase,
+          chainId: network.chainId,
+        },
+        base: { ...network, buyerUsdc, sellerUsdc, agentUsdc, buyerEth },
       });
       return;
     }
@@ -148,5 +154,5 @@ server.listen(config.port, "0.0.0.0", () => {
   console.log(`  Stripe     →  ${stripeConfigured() ? "test key loaded" : "simulated (set STRIPE_SECRET_KEY)"}`);
   console.log(`  OpenAI     →  ${openaiConfigured() ? config.openai.model : "regex fallback (set OPENAI_API_KEY)"}`);
   console.log(`  ERC-8004   →  ${config.scan8004.agentId ? `#${config.scan8004.agentId}` : "unset (ERC8004_AGENT_ID)"}`);
-  console.log(`  Base       →  ${config.base.rpcUrl}`);
+  console.log(`  Chain      →  ${config.base.chainName} ${config.base.network}`);
 });

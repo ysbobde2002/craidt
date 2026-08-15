@@ -2,7 +2,7 @@
 
 Split-screen agentic commerce: **buyer agent** on the left, **Shopify UCP merchants** on the right, prompt bar along the bottom.
 
-Purchase settles on **Stripe** (ACP-demo test-card flow). Merchant incentives and cashback live on **Base Sepolia**. Ranking still uses midnightx402 **Net Human Cost** with a conserved **60% user / 40% agent** split.
+Purchase settles on **Stripe** (ACP-demo test-card flow). Merchant incentives, cashback, and ERC-8004 identity live on **Ethereum Sepolia**. Ranking still uses midnightx402 **Net Human Cost** with a conserved **60% user / 40% agent** split.
 
 **Live demo:** [craidt-railway-production.up.railway.app](https://craidt-railway-production.up.railway.app)
 

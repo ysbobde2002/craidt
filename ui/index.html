@@ -45,7 +45,8 @@
             <div class="popover">
               <div class="pop-title">PROFILE</div>
               <div class="kv"><span>Agent</span><strong>craidt buyer</strong></div>
-              <div class="kv"><span>Identity</span><strong>ERC-8004 ready</strong></div>
+              <div class="kv"><span>Identity</span><strong id="profileIdentity">ERC-8004 pending mint</strong></div>
+              <div class="kv"><span>Owner</span><strong id="profileOwner">0x9f7A…764B3</strong></div>
               <div class="kv"><span>Rule</span><strong>min Net Human Cost</strong></div>
               <div class="kv"><span>Capacity</span><strong>$500</strong></div>
             </div>
@@ -55,7 +56,7 @@
             <div class="popover">
               <div class="tab-bar" id="walletTabs">
                 <button class="tab-btn active" type="button" data-tab="wallet-stripe">Stripe</button>
-                <button class="tab-btn" type="button" data-tab="wallet-base">Base</button>
+                <button class="tab-btn" type="button" data-tab="wallet-base">ETH</button>
               </div>
               <div class="tab-panel active" id="wallet-stripe">
                 <div class="pop-title">STRIPE TEST · BUYER</div>
@@ -70,8 +71,10 @@
                 <div class="tx-list" id="stripeTxList"><div class="tx-empty">No transactions yet</div></div>
               </div>
               <div class="tab-panel" id="wallet-base">
-                <div class="pop-title">BASE SEPOLIA · BUYER</div>
-                <div class="kv"><span>Network</span><strong>eip155:84532</strong></div>
+                <div class="pop-title">ETHEREUM SEPOLIA · BUYER</div>
+                <div class="kv"><span>Network</span><strong>eip155:11155111</strong></div>
+                <div class="kv"><span>Address</span><strong id="baseAddress">0x9f7A…764B3</strong></div>
+                <div class="kv"><span>ETH</span><strong id="baseEth">0.0000 ETH</strong></div>
                 <div class="kv"><span>USDC</span><strong id="baseUsdc">0.0000 USDC</strong></div>
                 <div class="pop-subtitle">RECENT TRANSACTIONS</div>
                 <div class="tx-list" id="baseTxList"><div class="tx-empty">No transactions yet</div></div>
@@ -96,7 +99,7 @@
           <div class="pop-wrap">
             <button class="wallet-btn" type="button" title="Merchant wallet">$</button>
             <div class="popover pop-left">
-              <div class="pop-title">MERCHANT · BASE SEPOLIA</div>
+              <div class="pop-title">MERCHANT · ETHEREUM SEPOLIA</div>
               <div class="kv"><span>USDC</span><strong id="sellerUsdc">—</strong></div>
               <div class="pop-subtitle">RECENT TRANSACTIONS</div>
               <div class="tx-list" id="sellerTxList"><div class="tx-empty">No transactions yet</div></div>

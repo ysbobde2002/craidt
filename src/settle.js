@@ -6,7 +6,7 @@ import { recordBaseIncentive } from "./base.js";
 /**
  * Fail-closed settlement:
  *   1. Stripe must succeed for the purchase
- *   2. Then merchant incentive splits 60/40 on Base Sepolia
+ *   2. Then merchant incentive splits 60/40 on Ethereum Sepolia
  *   3. Cashback reduces Net Human Cost only after this confirmation
  */
 export async function settlePurchase({ sessionId, productId }) {

@@ -213,6 +213,22 @@ fetch("/api/wallets")
       state.baseUsdc = Number(formatted) || state.baseUsdc;
       updateWalletUI();
     }
+    const ethEl = document.getElementById("baseEth");
+    const ethFormatted = data.base?.buyerEth?.formatted;
+    if (ethEl && ethFormatted) ethEl.textContent = `${Number(ethFormatted).toFixed(4)} ETH`;
+    const addrEl = document.getElementById("baseAddress");
+    const addr = data.base?.buyerAddress;
+    if (addrEl && addr) {
+      addrEl.textContent = `${addr.slice(0, 6)}…${addr.slice(-5)}`;
+    }
+    const ownerEl = document.getElementById("profileOwner");
+    if (ownerEl && addr) ownerEl.textContent = `${addr.slice(0, 6)}…${addr.slice(-5)}`;
+    const idEl = document.getElementById("profileIdentity");
+    if (idEl && data.scan8004) {
+      idEl.textContent = data.scan8004.agentId
+        ? `ERC-8004 #${data.scan8004.agentId}`
+        : "ERC-8004 pending mint";
+    }
     const sellerBal = data.base?.sellerUsdc?.formatted;
     const sellerEl = document.getElementById("sellerUsdc");
     if (sellerEl && sellerBal) sellerEl.textContent = `${sellerBal} USDC`;
@@ -453,8 +469,8 @@ async function runCommerce(data) {
     addBubble(feedSeller, "inc", `<span class="tx-in">+$${price.toFixed(2)}</span> received via Stripe`, "merchant");
 
     lightPhase("payout");
-    addBubble(feedBuyer, "inc", `<span class="tx-in">+$${agentReward.toFixed(2)} USDC</span> 40% agent reward on Base`, "payout");
-    addBubble(feedSeller, "inc", `<span class="tx-out">−$${bidAmt.toFixed(2)}</span> ad bid · 60/40 on Base`, "merchant");
+    addBubble(feedBuyer, "inc", `<span class="tx-in">+$${agentReward.toFixed(2)} USDC</span> 40% agent reward on Ethereum Sepolia`, "payout");
+    addBubble(feedSeller, "inc", `<span class="tx-out">−$${bidAmt.toFixed(2)}</span> ad bid · 60/40 on Ethereum Sepolia`, "merchant");
     state.baseUsdc += agentReward;
     state.txns.push({ dir: "tx-in", amount: agentReward.toFixed(4), time: now(), hash: baseRef });
     state.sellerTxns.push({

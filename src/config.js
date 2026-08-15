@@ -35,14 +35,15 @@ export const config = {
     testCustomerId: env("STRIPE_TEST_CUSTOMER_ID"),
   },
   base: {
-    rpcUrl: env("BASE_SEPOLIA_RPC", "https://sepolia.base.org"),
-    usdc: env("USDC_CONTRACT_ADDRESS", "0x036CbD53842c5426634e7929541eC2318f3dCF7e"),
-    explorer: env("EXPLORER_BASE_URL", "https://sepolia.basescan.org"),
-    chainId: Number(env("ERC8004_CHAIN_ID", "84532")),
-    network: env("X402_NETWORK", "eip155:84532"),
-    buyerAddress: env("BUYER_WALLET_ADDRESS"),
+    chainName: env("CHAIN_NAME", "Ethereum Sepolia"),
+    rpcUrl: env("ETH_SEPOLIA_RPC", env("BASE_SEPOLIA_RPC", "https://ethereum-sepolia-rpc.publicnode.com")),
+    usdc: env("USDC_CONTRACT_ADDRESS", "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"),
+    explorer: env("EXPLORER_BASE_URL", "https://sepolia.etherscan.io"),
+    chainId: Number(env("ERC8004_CHAIN_ID", "11155111")),
+    network: env("X402_NETWORK", "eip155:11155111"),
+    buyerAddress: env("BUYER_WALLET_ADDRESS", "0x9f7A0813674F48d2f2824B5099fBbD68686764B3"),
     sellerAddress: env("SELLER_PAYTO_ADDRESS"),
-    agentAddress: env("AGENT_WALLET_ADDRESS"),
+    agentAddress: env("AGENT_WALLET_ADDRESS", "0x9f7A0813674F48d2f2824B5099fBbD68686764B3"),
     buyerPrivateKey: env("BUYER_WALLET_PRIVATE_KEY"),
     sellerPrivateKey: env("SELLER_WALLET_PRIVATE_KEY"),
   },
@@ -58,7 +59,7 @@ export const config = {
   },
   x402: {
     facilitatorUrl: env("X402_FACILITATOR_URL", "https://x402.org/facilitator"),
-    network: env("X402_NETWORK", "eip155:84532"),
+    network: env("X402_NETWORK", "eip155:11155111"),
   },
 };
 
