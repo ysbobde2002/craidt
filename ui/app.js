@@ -704,7 +704,9 @@ async function runCommerce(data) {
     const nhc = (paid.economics.netHumanCostCents || receipt.pick.priceCents) / 100;
     const txHash = paid.base?.txHash;
     const txUrl = paid.base?.explorerTx;
-    const hashLine = txHash ? txLink(txHash, txUrl) : esc(paid.base?.detail || "no tx");
+    const hashLine = txHash
+      ? txLink(txHash, txUrl)
+      : esc(paid.base?.detail || "demo USDC");
 
     if (paid.base?.confirmed) {
       addBubble(

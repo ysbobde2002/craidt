@@ -68,6 +68,7 @@ console.log("\n== rails: Stripe + Ethereum Sepolia, not Rain / Monad ==");
   assert("app.js locks prior choice chips", js.includes("lockPreviousChoices") && js.includes("is-selected"));
   assert("settle.js uses stripe + base modules", settle.includes("chargePurchase") && settle.includes("payMerchantIncentive"));
   assert("x402 pays the buyer agent", readFileSync(join(ROOT, "src/x402.js"), "utf8").includes("payTo is the buyer agent"));
+  assert("demo x402 can simulate", readFileSync(join(ROOT, "src/base.js"), "utf8").includes("simulated x402"));
   assert("settle.js has no Rain/Monad runtime", !/\bRain\b/.test(settle) && !/\bMonad\b/.test(settle));
 }
 

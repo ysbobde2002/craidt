@@ -131,8 +131,8 @@ export async function buildAgentIdentity() {
   }
 
   const scan = await fetchScanAgent(chainId, agentId);
-  const owner = scan?.owner_address || config.base.agentAddress || config.base.buyerAddress;
-  const agentWallet = scan?.agent_wallet || owner;
+  const owner = scan?.owner_address || config.base.sellerAddress || config.base.buyerAddress;
+  const agentWallet = config.base.agentAddress || scan?.agent_wallet || owner;
   const ranking = scan ? scoreBreakdown(scan) : null;
   const verify = [
     { label: "8004scan profile", url: scanAgentUrl(chainId, agentId), kind: "indexer" },

@@ -58,39 +58,48 @@ function clients(account) {
 
 function configuredAccounts() {
   const out = [];
+  const seen = new Set();
   for (const [role, key] of [
     ["seller", config.base.sellerPrivateKey],
     ["buyer", config.base.buyerPrivateKey],
   ]) {
     const hex = normalizePrivateKey(key);
     if (!hex || hex.length !== 66) continue;
-    out.push({ role, account: privateKeyToAccount(hex) });
+    const account = privateKeyToAccount(hex);
+    const id = account.address.toLowerCase();
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push({ role, account });
   }
   return out;
+}
+
+async function readUsdc(address) {
+  const { publicClient } = clients();
+  return publicClient.readContract({
+    address: getAddress(config.base.usdc),
+    abi: USDC_ABI,
+    functionName: "balanceOf",
+    args: [getAddress(address)],
+  });
 }
 
 async function pickPayer(amountAtomic) {
   const list = configuredAccounts();
   if (!list.length) throw new Error("No wallet key configured to sign the x402 payment");
-  for (const item of list) {
-    const { publicClient } = clients();
-    const bal = await publicClient.readContract({
-      address: getAddress(config.base.usdc),
-      abi: USDC_ABI,
-      functionName: "balanceOf",
-      args: [item.account.address],
-    });
-    if (bal >= amountAtomic) return { ...item, usdc: bal };
+  const merchant = String(config.base.sellerAddress || "").toLowerCase();
+  const ordered = [
+    ...list.filter((x) => x.account.address.toLowerCase() === merchant),
+    ...list.filter((x) => x.role === "seller"),
+    ...list,
+  ].filter((item, i, arr) => arr.findIndex((x) => x.account.address === item.account.address) === i);
+
+  for (const item of ordered) {
+    const usdc = await readUsdc(item.account.address);
+    if (usdc >= amountAtomic) return { ...item, usdc };
   }
-  const seller = list.find((x) => x.role === "seller") || list[0];
-  const { publicClient } = clients();
-  const usdc = await publicClient.readContract({
-    address: getAddress(config.base.usdc),
-    abi: USDC_ABI,
-    functionName: "balanceOf",
-    args: [seller.account.address],
-  });
-  return { ...seller, usdc };
+  const seller = ordered[0];
+  return { ...seller, usdc: await readUsdc(seller.account.address) };
 }
 
 async function pickFacilitator(payerAddress) {
@@ -131,6 +140,9 @@ export async function executeX402ToAgent({ amountCents, offerId }) {
   if (amount <= 0n) throw new Error("Bid amount is 0");
 
   const payer = await pickPayer(amount);
+  if (payer.account.address.toLowerCase() === payTo.toLowerCase()) {
+    throw new Error("x402 merchant and buyer agent are the same wallet; USDC would not move");
+  }
   if (payer.usdc < amount) {
     const funded = config.base.sellerAddress;
     throw new Error(

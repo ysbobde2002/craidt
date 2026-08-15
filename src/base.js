@@ -107,8 +107,14 @@ export async function payMerchantIncentive({
     agentShareCents,
     offerId,
   });
-  if (!live) {
-    return { ...recorded, confirmed: true, detail: "simulated" };
+  const useLive = live && !config.x402.simulate;
+  if (!useLive) {
+    return {
+      ...recorded,
+      confirmed: true,
+      live: false,
+      detail: "demo USDC (simulated x402)",
+    };
   }
   try {
     const tx = await executeX402ToAgent({ amountCents: bidCents, offerId });
