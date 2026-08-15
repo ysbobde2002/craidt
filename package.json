@@ -8,5 +8,8 @@
     "start": "node scripts/serve-demo.mjs",
     "test": "node tests/eval.mjs",
     "tracker": "node scripts/generate-model-tracker.mjs"
+  },
+  "dependencies": {
+    "viem": "^2.55.16"
   }
 }

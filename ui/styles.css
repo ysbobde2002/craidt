@@ -297,6 +297,8 @@ body {
 .tx-in { color: var(--green); font-weight: 500; }
 .tx-out { color: var(--red); font-weight: 500; }
 .tx-meta { display: flex; justify-content: space-between; margin-top: 2px; color: var(--muted); }
+.tx-meta a { color: var(--muted); text-decoration: none; }
+.tx-meta a:hover { color: var(--green); text-decoration: underline; }
 
 .feed {
   flex: 1;
@@ -342,6 +344,8 @@ body {
   white-space: pre-wrap;
   word-break: break-word;
 }
+.bubble a { color: var(--green); text-decoration: none; font-weight: 500; }
+.bubble a:hover { text-decoration: underline; }
 .bubble.out { background: #000; color: #fff; border-bottom-right-radius: 2px; }
 .bubble.inc { background: var(--card); border: 1px solid var(--border-hi); color: #222; border-bottom-left-radius: 2px; }
 .bubble.sys {

@@ -29,7 +29,7 @@ function assert(name, cond, detail = "") {
 async function post(path, body) {
   const res = await fetch(`${BASE}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-Craidt-Eval": "1" },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(25000),
   });
@@ -56,16 +56,17 @@ console.log("\n== rails: Stripe + Ethereum Sepolia, not Rain / Monad ==");
   const { html, js, settle } = readUi();
   assert("search bar is conversational", html.includes("It's raining and I want to go out"));
   assert("wallet tab is Stripe", html.includes("wallet-stripe") && /STRIPE (TEST|DEMO)/.test(html));
-  assert("wallet tab is Ethereum Sepolia", html.includes("ETHEREUM SEPOLIA") && html.includes("eip155:11155111"));
+  assert("wallet tab is Ethereum Sepolia", html.includes("ETHEREUM SEPOLIA") && html.includes("LAST 3 TRANSACTIONS"));
   assert("profile has ID Rank Feedback Verify", /data-tab="profile-identity"/.test(html) && /profile-ranking/.test(html) && /profile-verify/.test(html));
-  assert("wallet ETH tab has identity and verify", html.includes("AGENT IDENTITY") && html.includes("walletVerifyList"));
+  assert("wallet ETH tab is balances and txs only", html.includes('id="wallet-base"') && html.includes("baseEth") && html.includes("baseUsdc") && !html.includes("walletVerifyList") && !html.includes("AGENT IDENTITY"));
   assert("phase rail is stripe not rain", html.includes('data-phase="stripe"') && !html.includes('data-phase="rain"'));
   assert("HTML has no Monad", !/\bMonad\b/.test(html));
   assert("HTML has no Rain card/settle", !/RAIN SCOPED|Rain →|via Rain|wallet-rain|wallet-monad/i.test(html));
   assert("app.js settles via Stripe", js.includes("Charging Stripe") && js.includes("received via Stripe"));
+  assert("app.js pushes USDC bid after receipt", js.includes("/api/incentive") && js.includes("merchant bid received"));
   assert("app.js payout is Ethereum Sepolia", js.includes("Ethereum Sepolia") && !/\bMonad\b/.test(js));
   assert("app.js locks prior choice chips", js.includes("lockPreviousChoices") && js.includes("is-selected"));
-  assert("settle.js uses stripe + base modules", settle.includes("chargePurchase") && settle.includes("recordBaseIncentive"));
+  assert("settle.js uses stripe + base modules", settle.includes("chargePurchase") && settle.includes("payMerchantIncentive"));
   assert("settle.js has no Rain/Monad runtime", !/\bRain\b/.test(settle) && !/\bMonad\b/.test(settle));
 }
 
@@ -273,6 +274,7 @@ try {
     const wallets = await get("/api/wallets");
     assert("wallets.stripe provider", wallets.stripe?.provider === "stripe");
     assert("wallets.base is Ethereum Sepolia", wallets.base?.chain === "Ethereum Sepolia" && wallets.base?.chainId === 11155111);
+    assert("wallets.base has ETH USDC and txs", Boolean(wallets.base?.buyerEth) && Boolean(wallets.base?.buyerUsdc) && Array.isArray(wallets.base?.buyerTxs));
 
     const t1 = await post("/api/turn", { prompt: "it's a rainy day and I want to go out" });
     assert("HTTP turn 1 no bids", !t1.bids);
@@ -286,12 +288,15 @@ try {
     const receipt = await post("/api/settle", { sessionId: t3.sessionId, productId: pick.productId });
     assert("settle rail is Stripe", receipt.stripe?.provider === "stripe");
     assert("settle chain is Ethereum Sepolia", /Ethereum Sepolia/i.test(receipt.base?.chain));
-    assert("settle split 60/40", receipt.economics?.split === "60/40");
+    assert("settle cashback waits for USDC", receipt.economics?.confirmedCashbackCents === 0);
+    const paid = await post("/api/incentive", { sessionId: t3.sessionId, productId: pick.productId });
+    assert("incentive split 60/40", paid.economics?.split === "60/40");
     assert(
-      "settle NHC uses confirmed cashback",
-      receipt.economics.netHumanCostCents ===
-        receipt.pick.priceCents - receipt.economics.confirmedCashbackCents,
+      "incentive NHC uses confirmed cashback",
+      paid.economics.netHumanCostCents ===
+        paid.pick.priceCents - paid.economics.confirmedCashbackCents,
     );
+    assert("incentive confirms USDC accounting", paid.base?.confirmed === true);
 
     let direct = await post("/api/turn", { prompt: "Find me chocolates under $10", limit: 5 });
     const sid = direct.intentSessionId || direct.sessionId;

@@ -46,6 +46,7 @@ export const config = {
     agentAddress: env("AGENT_WALLET_ADDRESS", "0x8873cD8D93D6FDee9d21F699723C90eeC783747e"),
     buyerPrivateKey: env("BUYER_WALLET_PRIVATE_KEY"),
     sellerPrivateKey: env("SELLER_WALLET_PRIVATE_KEY"),
+    etherscanApiKey: env("ETHERSCAN_API_KEY", env("BASESCAN_API_KEY")),
   },
   openai: {
     apiKey: env("OPENAI_API_KEY"),

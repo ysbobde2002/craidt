@@ -15,8 +15,8 @@ import { openaiConfigured } from "../src/openai.js";
 import { discoverProducts } from "../src/ucp.js";
 import { createAuction, getAuction, publicAuction, tickAuction } from "../src/auction.js";
 import { stripeWallet } from "../src/stripe.js";
-import { baseNetwork, fetchEthBalance, fetchUsdcBalance } from "../src/base.js";
-import { settlePurchase } from "../src/settle.js";
+import { baseNetwork, fetchEthBalance, fetchRecentTransactions, fetchUsdcBalance } from "../src/base.js";
+import { settlePurchase, pushPurchaseIncentive } from "../src/settle.js";
 import { buildAgentIdentity } from "../src/identity.js";
 
 const UI_ROOT = join(ROOT, "ui");
@@ -124,6 +124,18 @@ const server = createServer(async (req, res) => {
       return;
     }
 
+    if (url.pathname === "/api/incentive" && req.method === "POST") {
+      const body = JSON.parse((await readBody(req)) || "{}");
+      const live = String(req.headers["x-craidt-eval"] || "") !== "1";
+      const receipt = await pushPurchaseIncentive({
+        sessionId: String(body.sessionId ?? "").trim(),
+        productId: String(body.productId ?? "").trim(),
+        live,
+      });
+      sendJson(res, 200, receipt);
+      return;
+    }
+
     if (url.pathname === "/api/agent/erc8004" && req.method === "GET") {
       const identity = await buildAgentIdentity();
       sendJson(res, identity.configured ? 200 : 503, identity);
@@ -132,12 +144,14 @@ const server = createServer(async (req, res) => {
 
     if (url.pathname === "/api/wallets" && req.method === "GET") {
       const network = baseNetwork();
-      const [buyerUsdc, sellerUsdc, agentUsdc, buyerEth, sellerEth] = await Promise.all([
+      const [buyerUsdc, sellerUsdc, agentUsdc, buyerEth, sellerEth, buyerTxs, sellerTxs] = await Promise.all([
         fetchUsdcBalance(network.buyerAddress).catch(() => null),
         fetchUsdcBalance(network.sellerAddress).catch(() => null),
         fetchUsdcBalance(network.agentAddress).catch(() => null),
         fetchEthBalance(network.buyerAddress).catch(() => null),
         fetchEthBalance(network.sellerAddress).catch(() => null),
+        fetchRecentTransactions(network.buyerAddress, 3).catch(() => []),
+        fetchRecentTransactions(network.sellerAddress, 3).catch(() => []),
       ]);
       sendJson(res, 200, {
         stripe: stripeWallet(),
@@ -147,7 +161,7 @@ const server = createServer(async (req, res) => {
           webBase: config.scan8004.webBase,
           chainId: network.chainId,
         },
-        base: { ...network, buyerUsdc, sellerUsdc, agentUsdc, buyerEth, sellerEth },
+        base: { ...network, buyerUsdc, sellerUsdc, agentUsdc, buyerEth, sellerEth, buyerTxs, sellerTxs },
       });
       return;
     }

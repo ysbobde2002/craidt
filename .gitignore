@@ -3,3 +3,5 @@
 local.env
 .wallets.monad.json
 .cashback.deployer.json
+node_modules/
+.DS_Store

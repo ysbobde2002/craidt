@@ -39,8 +39,6 @@ const esc = (s) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 const now = () => new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC";
-const shortHash = () =>
-  "0x" + Math.random().toString(16).slice(2, 6) + "…" + Math.random().toString(16).slice(2, 6);
 
 function saveState() {
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -54,6 +52,13 @@ function resetPhases() {
   document.querySelectorAll(".phase-step").forEach((s) => s.classList.remove("lit"));
 }
 
+function txLink(hash, url) {
+  if (!hash) return "";
+  const short = `${String(hash).slice(0, 6)}…${String(hash).slice(-4)}`;
+  if (!url) return esc(short);
+  return `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(short)}</a>`;
+}
+
 function addBubble(feed, type, html, label) {
   const wrap = document.createElement("div");
   wrap.className = `bwrap ${type === "out" ? "sent" : type === "inc" ? "recv" : "mid"}`;
@@ -63,29 +68,80 @@ function addBubble(feed, type, html, label) {
   feed.scrollTop = feed.scrollHeight;
 }
 
+function formatAmount(value, digits = 4) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return String(value ?? "0");
+  return n.toFixed(digits);
+}
+
+function renderChainTxList(el, txs) {
+  if (!el) return;
+  if (!Array.isArray(txs) || !txs.length) {
+    el.innerHTML = `<div class="tx-empty">No transactions yet</div>`;
+    return;
+  }
+  el.innerHTML = txs
+    .slice(0, 3)
+    .map((tx) => {
+      const sign = tx.dir === "tx-in" ? "+" : "−";
+      const amount = tx.amount === "0" || Number(tx.amount) === 0 ? "" : `${sign}${formatAmount(tx.amount)} `;
+      const label = esc(tx.label || tx.asset || "");
+      const hash = esc(tx.hashShort || tx.hash || "");
+      const href = esc(tx.explorer || "#");
+      return `
+    <div class="tx-row">
+      <div class="${esc(tx.dir || "tx-out")}">${amount}${label}</div>
+      <div class="tx-meta"><span>${esc(tx.time || "")}</span><a href="${href}" target="_blank" rel="noopener">${hash}</a></div>
+    </div>`;
+    })
+    .join("");
+}
+
+function applyWallets(data) {
+  const formatted = data.base?.buyerUsdc?.formatted;
+  if (formatted != null && formatted !== "") {
+    state.baseUsdc = Number(formatted) || 0;
+    document.getElementById("baseUsdc").textContent = `${formatAmount(state.baseUsdc)} USDC`;
+  }
+  const ethEl = document.getElementById("baseEth");
+  const ethFormatted = data.base?.buyerEth?.formatted;
+  if (ethEl && ethFormatted != null && ethFormatted !== "") {
+    ethEl.textContent = `${formatAmount(ethFormatted)} ETH`;
+  }
+  const sellerEl = document.getElementById("sellerUsdc");
+  const sellerBal = data.base?.sellerUsdc?.formatted;
+  if (sellerEl && sellerBal != null && sellerBal !== "") {
+    sellerEl.textContent = `${formatAmount(sellerBal)} USDC`;
+  }
+  const sellerEthEl = document.getElementById("sellerEth");
+  const sellerEth = data.base?.sellerEth?.formatted;
+  if (sellerEthEl && sellerEth != null && sellerEth !== "") {
+    sellerEthEl.textContent = `${formatAmount(sellerEth)} ETH`;
+  }
+  renderChainTxList(document.getElementById("baseTxList"), data.base?.buyerTxs);
+  renderChainTxList(document.getElementById("sellerTxList"), data.base?.sellerTxs);
+}
+
+function refreshWallets() {
+  return fetch("/api/wallets")
+    .then((r) => r.json())
+    .then((data) => {
+      renderStripeCard(data.stripe);
+      applyWallets(data);
+    })
+    .catch(() => {});
+}
+
 function updateWalletUI() {
-  document.getElementById("baseUsdc").textContent = `${state.baseUsdc.toFixed(4)} USDC`;
   document.getElementById("stripeCashback").textContent = `$${state.stripeCashback.toFixed(2)}`;
 
   const rows = (list, mapFn) =>
     list.slice(-3).reverse().map(mapFn).join("") || `<div class="tx-empty">No transactions yet</div>`;
 
-  document.getElementById("baseTxList").innerHTML = rows(state.txns, (tx) => `
-    <div class="tx-row">
-      <div class="${tx.dir}">${tx.dir === "tx-in" ? "+" : "−"}${tx.amount} USDC</div>
-      <div class="tx-meta"><span>${tx.time}</span><span>${tx.hash}</span></div>
-    </div>`);
-
   document.getElementById("stripeTxList").innerHTML = rows(state.stripeTxns, (tx) => `
     <div class="tx-row">
       <div class="tx-out">−$${tx.amount} · ${esc(tx.label || "charge")}</div>
       <div class="tx-meta"><span>${tx.time}</span><span>${esc(tx.ref || "")}</span></div>
-    </div>`);
-
-  document.getElementById("sellerTxList").innerHTML = rows(state.sellerTxns, (tx) => `
-    <div class="tx-row">
-      <div class="${tx.dir}">${tx.dir === "tx-in" ? "+" : "−"}${tx.amount} · ${esc(tx.label)}</div>
-      <div class="tx-meta"><span>${tx.time}</span><span>${tx.hash}</span></div>
     </div>`);
 
   saveState();
@@ -342,14 +398,6 @@ function renderAgentIdentity(data) {
   const links = data.sections?.verify?.links || data.verify || [];
   const verifyList = document.getElementById("verifyList");
   if (verifyList) verifyList.innerHTML = verifyRowsHtml(links);
-  const walletVerify = document.getElementById("walletVerifyList");
-  if (walletVerify) walletVerify.innerHTML = verifyRowsHtml(links);
-
-  set("walletAgentName", id.name || data.name);
-  set("walletAgentId", `#${id.agentId ?? data.agentId}`);
-  set("walletAgentOwner", shortAddr(id.owner || data.owner));
-  const health = scoreLine(rank.healthScore);
-  set("walletAgentRank", health || (state.rankScore ? `${state.rankScore} / 100 demo` : "awaiting 8004scan"));
 }
 
 function refreshDemoRank() {
@@ -358,10 +406,6 @@ function refreshDemoRank() {
     demo.textContent = state.fbCount
       ? `${state.rankScore} / 100 · ${state.fbCount} rating${state.fbCount === 1 ? "" : "s"}`
       : "none yet";
-  }
-  const walletRank = document.getElementById("walletAgentRank");
-  if (walletRank && state.rankScore) {
-    walletRank.textContent = `${state.rankScore} / 100 demo`;
   }
 }
 
@@ -377,36 +421,7 @@ fetch("/api/agent/erc8004")
   .then(renderAgentIdentity)
   .catch(() => renderAgentIdentityError("Could not load ERC-8004 identity."));
 
-fetch("/api/wallets")
-  .then((r) => r.json())
-  .then((data) => {
-    renderStripeCard(data.stripe);
-    const formatted = data.base?.buyerUsdc?.formatted;
-    if (formatted) {
-      state.baseUsdc = Number(formatted) || state.baseUsdc;
-      updateWalletUI();
-    }
-    const ethEl = document.getElementById("baseEth");
-    const ethFormatted = data.base?.buyerEth?.formatted;
-    if (ethEl && ethFormatted) ethEl.textContent = `${Number(ethFormatted).toFixed(4)} ETH`;
-    const addrEl = document.getElementById("baseAddress");
-    const addr = data.base?.buyerAddress;
-    if (addrEl && addr) {
-      addrEl.textContent = `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-    }
-    const sellerBal = data.base?.sellerUsdc?.formatted;
-    const sellerEl = document.getElementById("sellerUsdc");
-    if (sellerEl && sellerBal) sellerEl.textContent = `${sellerBal} USDC`;
-    const sellerAddrEl = document.getElementById("sellerAddress");
-    const sellerAddr = data.base?.sellerAddress;
-    if (sellerAddrEl && sellerAddr) {
-      sellerAddrEl.textContent = `${sellerAddr.slice(0, 6)}…${sellerAddr.slice(-4)}`;
-    }
-    const sellerEthEl = document.getElementById("sellerEth");
-    const sellerEth = data.base?.sellerEth?.formatted;
-    if (sellerEthEl && sellerEth) sellerEthEl.textContent = `${Number(sellerEth).toFixed(4)} ETH`;
-  })
-  .catch(() => {});
+refreshWallets();
 
 function sameChoices(a, b) {
   if (!a?.length || !b?.length || a.length !== b.length) return false;
@@ -632,76 +647,94 @@ async function runCommerce(data) {
     if (!settleRes.ok) throw new Error(receipt.error || "Settle failed");
 
     const price = receipt.pick.priceCents / 100;
-    const cashback = receipt.economics.confirmedCashbackCents / 100;
-    const agentReward = receipt.economics.agentShareCents / 100;
     const bidAmt = receipt.economics.bidCents / 100;
-    const nhc = receipt.economics.netHumanCostCents / 100;
     const stripeRef = receipt.stripe.paymentIntentId || "pi_demo";
-    const baseRef = receipt.base.reference || shortHash();
     const stripeMode = receipt.stripe.status === "paid" ? "live test" : "simulated";
+    const productLabel = (receipt.pick.title || "").slice(0, 28);
 
     addBubble(
       feedBuyer,
       "inc",
-      `<span class="tx-out">−$${price.toFixed(2)}</span> Stripe → Merchant\n${esc(stripeMode)} · ${esc(stripeRef)}`,
+      `<span class="tx-out">−$${price.toFixed(2)}</span> Stripe → Merchant\n${esc(productLabel)}\n${esc(stripeMode)} · ${esc(stripeRef)}`,
       "stripe",
     );
     state.stripeTxns.push({
       amount: price.toFixed(2),
       time: now(),
-      label: "charge",
+      label: productLabel || "charge",
       ref: stripeRef,
     });
-    state.sellerTxns.push({
-      dir: "tx-in",
-      amount: `$${price.toFixed(2)}`,
-      label: "Stripe settle",
-      time: now(),
-      hash: stripeRef,
-    });
     updateWalletUI();
-    await sleep(500);
-    addBubble(feedSeller, "inc", `<span class="tx-in">+$${price.toFixed(2)}</span> received via Stripe`, "merchant");
-
-    lightPhase("payout");
-    addBubble(feedBuyer, "inc", `<span class="tx-in">+$${agentReward.toFixed(2)} USDC</span> 40% agent reward on Ethereum Sepolia`, "payout");
-    addBubble(feedSeller, "inc", `<span class="tx-out">−$${bidAmt.toFixed(2)}</span> ad bid · 60/40 on Ethereum Sepolia`, "merchant");
-    state.baseUsdc += agentReward;
-    state.txns.push({ dir: "tx-in", amount: agentReward.toFixed(4), time: now(), hash: baseRef });
-    state.sellerTxns.push({
-      dir: "tx-out",
-      amount: `${bidAmt.toFixed(4)} USDC`,
-      label: "ad bid · 60/40",
-      time: now(),
-      hash: baseRef,
-    });
-    updateWalletUI();
-    await sleep(500);
-    addBubble(
-      feedBuyer,
-      "inc",
-      `<span class="tx-in">+$${cashback.toFixed(2)}</span> 60% cashback confirmed\nNet Human Cost $${nhc.toFixed(2)}`,
-      "payout",
-    );
-    state.stripeCashback += cashback;
-    updateWalletUI();
+    await sleep(400);
+    addBubble(feedSeller, "inc", `<span class="tx-in">+$${price.toFixed(2)}</span> received via Stripe\n${esc(productLabel)}`, "merchant");
 
     addBubble(
       feedSeller,
       "inc",
       `<div class="receipt-card">
         <div class="receipt-header">RECEIPT</div>
-        <div class="receipt-row"><span>Order</span><strong>${esc((receipt.pick.title || "").slice(0, 24))}</strong></div>
+        <div class="receipt-row"><span>Order</span><strong>${esc(productLabel)}</strong></div>
         <div class="receipt-row"><span>Amount</span><strong>$${price.toFixed(2)}</strong></div>
         <div class="receipt-row"><span>Rail</span><strong>Stripe ${esc(stripeMode)}</strong></div>
-        <div class="receipt-row"><span>Ad bid</span><strong>$${bidAmt.toFixed(2)} USDC · Base</strong></div>
-        <div class="receipt-row"><span>User cashback 60%</span><strong>$${cashback.toFixed(2)}</strong></div>
-        <div class="receipt-row"><span>Agent reward 40%</span><strong>$${agentReward.toFixed(2)}</strong></div>
-        <div class="receipt-row"><span>Net Human Cost</span><strong>$${nhc.toFixed(2)}</strong></div>
-        <div class="receipt-row"><span>Status</span><strong class="tx-in">Settled</strong></div>
+        <div class="receipt-row"><span>Ad bid</span><strong>$${bidAmt.toFixed(2)} USDC pending</strong></div>
+        <div class="receipt-row"><span>Status</span><strong class="tx-in">Paid</strong></div>
       </div>`,
       "receipt",
     );
+
+    lightPhase("payout");
+    addBubble(
+      feedSeller,
+      "inc",
+      `Pushing $${bidAmt.toFixed(2)} USDC bid to buyer agent…`,
+      "merchant",
+    );
+    addBubble(feedBuyer, "inc", "Waiting for merchant USDC bid on Ethereum Sepolia…", "payout");
+
+    const incentiveRes = await fetch("/api/incentive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, productId: pick.productId }),
+    });
+    const paid = await incentiveRes.json();
+    if (!incentiveRes.ok) throw new Error(paid.error || "USDC bid transfer failed");
+
+    const cashback = (paid.economics.confirmedCashbackCents || 0) / 100;
+    const agentReward = (paid.economics.agentShareCents || 0) / 100;
+    const nhc = (paid.economics.netHumanCostCents || receipt.pick.priceCents) / 100;
+    const txHash = paid.base?.txHash;
+    const txUrl = paid.base?.explorerTx;
+    const hashLine = txHash ? txLink(txHash, txUrl) : esc(paid.base?.detail || "no tx");
+
+    if (paid.base?.confirmed) {
+      addBubble(
+        feedBuyer,
+        "inc",
+        `<span class="tx-in">+$${bidAmt.toFixed(2)} USDC</span> merchant bid received\n${esc(productLabel)}\n60% yours $${cashback.toFixed(2)} · 40% agent $${agentReward.toFixed(2)}\nNet Human Cost $${nhc.toFixed(2)}\n${hashLine}`,
+        "payout",
+      );
+      addBubble(
+        feedSeller,
+        "inc",
+        `<span class="tx-out">−$${bidAmt.toFixed(2)} USDC</span> bid → buyer agent\n${esc(productLabel)}\n${hashLine}`,
+        "merchant",
+      );
+      state.stripeCashback += cashback;
+      updateWalletUI();
+    } else {
+      addBubble(
+        feedBuyer,
+        "sys",
+        `USDC bid not confirmed: ${esc(paid.base?.error || paid.base?.detail || "transfer failed")}`,
+      );
+      addBubble(
+        feedSeller,
+        "inc",
+        `USDC bid failed: ${esc(paid.base?.error || paid.base?.detail || "transfer failed")}`,
+        "merchant",
+      );
+    }
+    refreshWallets();
 
     lightPhase("reputation");
     const ratingWrap = document.createElement("div");

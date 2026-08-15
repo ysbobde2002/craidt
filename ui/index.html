@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles.css?v=identity1" />
+  <link rel="stylesheet" href="/styles.css?v=usdc1" />
 </head>
 <body>
   <header class="header">
@@ -105,18 +105,9 @@
               </div>
               <div class="tab-panel" id="wallet-base">
                 <div class="pop-title">ETHEREUM SEPOLIA · BUYER</div>
-                <div class="kv"><span>Network</span><strong>eip155:11155111</strong></div>
-                <div class="kv"><span>Address</span><strong id="baseAddress">0x8873…747e</strong></div>
                 <div class="kv"><span>ETH</span><strong id="baseEth">0.0000 ETH</strong></div>
                 <div class="kv"><span>USDC</span><strong id="baseUsdc">0.0000 USDC</strong></div>
-                <div class="pop-subtitle">AGENT IDENTITY</div>
-                <div class="kv"><span>Agent</span><strong id="walletAgentName">craidt-buyer-agent</strong></div>
-                <div class="kv"><span>ERC-8004</span><strong id="walletAgentId">#9638</strong></div>
-                <div class="kv"><span>Owner</span><strong id="walletAgentOwner">0x8873…747e</strong></div>
-                <div class="kv"><span>Health</span><strong id="walletAgentRank">awaiting 8004scan</strong></div>
-                <div class="pop-subtitle">VERIFY</div>
-                <div class="verify-list" id="walletVerifyList"></div>
-                <div class="pop-subtitle">RECENT TRANSACTIONS</div>
+                <div class="pop-subtitle">LAST 3 TRANSACTIONS</div>
                 <div class="tx-list" id="baseTxList"><div class="tx-empty">No transactions yet</div></div>
               </div>
             </div>
@@ -139,10 +130,9 @@
             <button class="wallet-btn" type="button" title="Merchant wallet">$</button>
             <div class="popover pop-left">
               <div class="pop-title">MERCHANT · ETHEREUM SEPOLIA</div>
-              <div class="kv"><span>Address</span><strong id="sellerAddress">0x9f7A…764B3</strong></div>
               <div class="kv"><span>ETH</span><strong id="sellerEth">0.0000 ETH</strong></div>
               <div class="kv"><span>USDC</span><strong id="sellerUsdc">—</strong></div>
-              <div class="pop-subtitle">RECENT TRANSACTIONS</div>
+              <div class="pop-subtitle">LAST 3 TRANSACTIONS</div>
               <div class="tx-list" id="sellerTxList"><div class="tx-empty">No transactions yet</div></div>
             </div>
           </div>
@@ -165,6 +155,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=identity1"></script>
+  <script src="app.js?v=usdc1"></script>
 </body>
 </html>
