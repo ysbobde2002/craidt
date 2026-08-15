@@ -138,6 +138,7 @@ export async function buildAgentIdentity() {
     { label: "8004scan profile", url: scanAgentUrl(chainId, agentId), kind: "indexer" },
     { label: "Etherscan NFT (on-chain ID)", url: `${explorerBase(chainId)}/nft/${registry}/${agentId}`, kind: "chain" },
     { label: "Identity Registry contract", url: `${explorerBase(chainId)}/address/${registry}`, kind: "chain" },
+    { label: "Reputation Registry contract", url: `${explorerBase(chainId)}/address/${config.base.reputationRegistry}`, kind: "chain" },
     { label: "Owner wallet", url: `${explorerBase(chainId)}/address/${owner}`, kind: "chain" },
     { label: "craidt demo", url: serviceUrl(), kind: "service" },
   ];

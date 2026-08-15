@@ -16,7 +16,7 @@ import { discoverProducts } from "../src/ucp.js";
 import { createAuction, getAuction, publicAuction, tickAuction } from "../src/auction.js";
 import { stripeWallet } from "../src/stripe.js";
 import { baseNetwork, fetchEthBalance, fetchRecentTransactions, fetchUsdcBalance } from "../src/base.js";
-import { settlePurchase, pushPurchaseIncentive } from "../src/settle.js";
+import { settlePurchase, pushPurchaseIncentive, submitPurchaseFeedback } from "../src/settle.js";
 import { buildAgentIdentity } from "../src/identity.js";
 
 const UI_ROOT = join(ROOT, "ui");
@@ -133,6 +133,19 @@ const server = createServer(async (req, res) => {
         live,
       });
       sendJson(res, 200, receipt);
+      return;
+    }
+
+    if (url.pathname === "/api/feedback" && req.method === "POST") {
+      const body = JSON.parse((await readBody(req)) || "{}");
+      const live = String(req.headers["x-craidt-eval"] || "") !== "1";
+      const result = await submitPurchaseFeedback({
+        sessionId: String(body.sessionId ?? "").trim(),
+        productId: String(body.productId ?? "").trim(),
+        stars: body.stars,
+        live,
+      });
+      sendJson(res, result.submitted ? 200 : 400, result);
       return;
     }
 

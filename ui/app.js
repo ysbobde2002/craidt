@@ -754,35 +754,63 @@ async function runCommerce(data) {
     await new Promise((resolve) => {
       const starsEl = document.getElementById("ratingStars");
       const valEl = document.getElementById("ratingVal");
-      starsEl.addEventListener("click", (ev) => {
-        const v = Number(ev.target.dataset.v);
-        if (!v) return;
+      let settled = false;
+      const finish = async (v) => {
+        if (settled) return;
+        settled = true;
         starsEl.querySelectorAll(".star").forEach((s) => s.classList.toggle("on", Number(s.dataset.v) <= v));
-        valEl.textContent = `${v * 20} / 100`;
+        valEl.textContent = `submitting ${v * 20}/100 on-chain…`;
         state.fbCount += 1;
         state.fbTotal += v * 20;
         state.rankScore = Math.round(state.fbTotal / state.fbCount);
         updateWalletUI();
         refreshDemoRank();
-        setTimeout(resolve, 500);
+        try {
+          const fbRes = await fetch("/api/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionId, productId: pick.productId, stars: v }),
+          });
+          const fb = await fbRes.json();
+          if (!fb.submitted) throw new Error(fb.error || "giveFeedback failed");
+          const fbLine = fb.feedbackTxHash
+            ? txLink(fb.feedbackTxHash, fb.feedbackExplorer)
+            : esc(fb.detail || "on-chain");
+          valEl.textContent = `${fb.feedbackScore || v * 20} / 100`;
+          addBubble(
+            feedBuyer,
+            "inc",
+            `Reputation on-chain · ${fb.feedbackScore || v * 20}/100\n${fbLine}`,
+            "agent",
+          );
+          addBubble(
+            feedSeller,
+            "inc",
+            `ERC-8004 giveFeedback submitted\n${fbLine}`,
+            "shopify",
+          );
+          fetch("/api/agent/erc8004")
+            .then((r) => r.json())
+            .then(renderAgentIdentity)
+            .catch(() => {});
+        } catch (err) {
+          valEl.textContent = "on-chain feedback failed";
+          addBubble(feedBuyer, "sys", `Feedback not on-chain: ${esc(err.message)}`);
+          addBubble(feedSeller, "inc", `giveFeedback failed: ${esc(err.message)}`, "shopify");
+        }
+        resolve();
+      };
+      starsEl.addEventListener("click", (ev) => {
+        const v = Number(ev.target.dataset.v);
+        if (!v) return;
+        finish(v);
       });
       setTimeout(() => {
-        if (starsEl.querySelector(".star.on")) return;
-        starsEl.querySelectorAll(".star").forEach((s, i) => {
-          if (i < 4) s.classList.add("on");
-        });
-        valEl.textContent = "80 / 100";
-        state.fbCount += 1;
-        state.fbTotal += 80;
-        state.rankScore = Math.round(state.fbTotal / state.fbCount);
-        updateWalletUI();
-        refreshDemoRank();
-        resolve();
+        if (settled) return;
+        finish(4);
       }, 3500);
     });
 
-    addBubble(feedBuyer, "inc", `Reputation updated · rank ${state.rankScore}/100`, "agent");
-    addBubble(feedSeller, "inc", "Feedback submitted", "shopify");
     intentSessionId = null;
   } catch (err) {
     intentSessionId = null;

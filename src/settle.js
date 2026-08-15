@@ -2,6 +2,7 @@ import { getAuction } from "./auction.js";
 import { netHumanCostCents, splitIncentiveCents } from "./cashback.js";
 import { chargePurchase } from "./stripe.js";
 import { payMerchantIncentive, recordBaseIncentive } from "./base.js";
+import { submitGiveFeedback } from "./feedback.js";
 
 function selectedOffer(session, productId) {
   if (!session) throw new Error("auction session not found");
@@ -96,5 +97,34 @@ export async function pushPurchaseIncentive({ sessionId, productId, live = true 
     economics: economics({ pick, bidCents, split, confirmedCashbackCents }),
   };
   if (base.confirmed) session.incentive = result;
+  return result;
+}
+
+/** After payout: merchant client writes ERC-8004 giveFeedback for the buyer agent. */
+export async function submitPurchaseFeedback({ sessionId, productId, stars, live = true }) {
+  const session = getAuction(sessionId);
+  const { pick, bidCents } = selectedOffer(session, productId);
+  if (session.settledProductId !== pick.productId) {
+    throw new Error("Stripe receipt missing for this offer");
+  }
+  if (session.feedback) return session.feedback;
+
+  const score = Math.max(0, Math.min(100, Math.round(Number(stars) || 0) * 20));
+  const stripe = session.stripeReceipt || {};
+  const incentive = session.incentive?.base || {};
+  const result = await submitGiveFeedback({
+    score,
+    stars: Number(stars) || null,
+    payment: {
+      offerId: pick.productId,
+      paymentIntentId: stripe.paymentIntentId,
+      amountCents: pick.priceCents,
+      bidCents,
+      txHash: incentive.txHash,
+      provider: incentive.txHash ? "x402" : stripe.provider,
+    },
+    live,
+  });
+  if (result.submitted) session.feedback = result;
   return result;
 }
