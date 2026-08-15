@@ -63,10 +63,11 @@ console.log("\n== rails: Stripe + Ethereum Sepolia, not Rain / Monad ==");
   assert("HTML has no Monad", !/\bMonad\b/.test(html));
   assert("HTML has no Rain card/settle", !/RAIN SCOPED|Rain →|via Rain|wallet-rain|wallet-monad/i.test(html));
   assert("app.js settles via Stripe", js.includes("Charging Stripe") && js.includes("received via Stripe"));
-  assert("app.js pushes USDC bid after receipt", js.includes("/api/incentive") && js.includes("merchant bid received"));
+  assert("app.js pushes USDC bid after receipt", js.includes("/api/incentive") && js.includes("x402 → buyer agent"));
   assert("app.js payout is Ethereum Sepolia", js.includes("Ethereum Sepolia") && !/\bMonad\b/.test(js));
   assert("app.js locks prior choice chips", js.includes("lockPreviousChoices") && js.includes("is-selected"));
   assert("settle.js uses stripe + base modules", settle.includes("chargePurchase") && settle.includes("payMerchantIncentive"));
+  assert("x402 pays the buyer agent", readFileSync(join(ROOT, "src/x402.js"), "utf8").includes("payTo is the buyer agent"));
   assert("settle.js has no Rain/Monad runtime", !/\bRain\b/.test(settle) && !/\bMonad\b/.test(settle));
 }
 
@@ -297,6 +298,7 @@ try {
         paid.pick.priceCents - paid.economics.confirmedCashbackCents,
     );
     assert("incentive confirms USDC accounting", paid.base?.confirmed === true);
+    assert("incentive rail is x402", paid.base?.rail === "x402");
 
     let direct = await post("/api/turn", { prompt: "Find me chocolates under $10", limit: 5 });
     const sid = direct.intentSessionId || direct.sessionId;

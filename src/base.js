@@ -1,11 +1,5 @@
-import { createPublicClient, createWalletClient, getAddress, http, parseAbi } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { sepolia } from "viem/chains";
+import { executeX402ToAgent } from "./x402.js";
 import { config } from "./config.js";
-
-const USDC_ABI = parseAbi([
-  "function transfer(address to, uint256 amount) returns (bool)",
-]);
 
 function padAddress(addr) {
   return addr.trim().toLowerCase();
@@ -79,21 +73,12 @@ export function baseNetwork() {
   };
 }
 
-function normalizePrivateKey(key) {
-  const hex = String(key || "").trim();
-  if (!hex) return "";
-  return hex.startsWith("0x") ? hex : `0x${hex}`;
-}
-
-function usdcAtomicFromCents(cents) {
-  return BigInt(Math.max(0, Math.round(Number(cents) || 0))) * 10_000n;
-}
-
-/** Incentive rail accounting. Live USDC send happens in payMerchantIncentive. */
+/** Incentive rail accounting. Live x402 USDC send happens in payMerchantIncentive. */
 export function recordBaseIncentive({ bidCents, userCashbackCents, agentShareCents, offerId }) {
   return {
     chain: config.base.chainName,
     asset: "USDC",
+    rail: "x402",
     bidUsdc: bidCents / 100,
     userCashbackUsdc: userCashbackCents / 100,
     agentShareUsdc: agentShareCents / 100,
@@ -106,45 +91,6 @@ export function recordBaseIncentive({ bidCents, userCashbackCents, agentShareCen
     live: false,
     txHash: null,
     explorerTx: null,
-  };
-}
-
-export async function transferUsdcToAgent({ amountCents, offerId }) {
-  const key = normalizePrivateKey(config.base.sellerPrivateKey);
-  const to = getAddress(config.base.agentAddress || config.base.buyerAddress);
-  if (!key || key.length !== 66) throw new Error("Merchant wallet key missing");
-  const amount = usdcAtomicFromCents(amountCents);
-  if (amount <= 0n) throw new Error("Bid amount is 0");
-
-  const account = privateKeyToAccount(key);
-  const seller = String(config.base.sellerAddress || "").toLowerCase();
-  if (seller && account.address.toLowerCase() !== seller) {
-    throw new Error("Merchant key does not match SELLER_PAYTO_ADDRESS");
-  }
-
-  const chain = { ...sepolia, id: config.base.chainId || sepolia.id };
-  const transport = http(config.base.rpcUrl);
-  const publicClient = createPublicClient({ chain, transport });
-  const walletClient = createWalletClient({ account, chain, transport });
-  const hash = await walletClient.writeContract({
-    address: getAddress(config.base.usdc),
-    abi: USDC_ABI,
-    functionName: "transfer",
-    args: [to, amount],
-    account,
-  });
-  const receipt = await publicClient.waitForTransactionReceipt({
-    hash,
-    timeout: 90_000,
-  });
-  if (receipt.status !== "success") throw new Error("USDC transfer reverted");
-  return {
-    hash,
-    to,
-    from: account.address,
-    amountAtomic: amount.toString(),
-    amountUsdc: formatUnits(amount, 6),
-    offerId,
   };
 }
 
@@ -165,7 +111,7 @@ export async function payMerchantIncentive({
     return { ...recorded, confirmed: true, detail: "simulated" };
   }
   try {
-    const tx = await transferUsdcToAgent({ amountCents: bidCents, offerId });
+    const tx = await executeX402ToAgent({ amountCents: bidCents, offerId });
     return {
       ...recorded,
       confirmed: true,
@@ -174,7 +120,9 @@ export async function payMerchantIncentive({
       explorerTx: `${config.base.explorer}/tx/${tx.hash}`,
       from: tx.from,
       to: tx.to,
-      detail: "USDC transfer confirmed",
+      payTo: tx.payTo,
+      facilitator: tx.facilitator,
+      detail: "x402 USDC to buyer agent confirmed",
     };
   } catch (err) {
     return {
@@ -182,7 +130,7 @@ export async function payMerchantIncentive({
       confirmed: false,
       live: true,
       error: err instanceof Error ? err.message : String(err),
-      detail: "USDC bid transfer failed",
+      detail: "x402 USDC bid transfer failed",
     };
   }
 }

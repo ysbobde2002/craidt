@@ -686,10 +686,10 @@ async function runCommerce(data) {
     addBubble(
       feedSeller,
       "inc",
-      `Pushing $${bidAmt.toFixed(2)} USDC bid to buyer agent…`,
+      `Pushing $${bidAmt.toFixed(2)} USDC via x402 to buyer agent…`,
       "merchant",
     );
-    addBubble(feedBuyer, "inc", "Waiting for merchant USDC bid on Ethereum Sepolia…", "payout");
+    addBubble(feedBuyer, "inc", "Waiting for x402 USDC on Ethereum Sepolia…", "payout");
 
     const incentiveRes = await fetch("/api/incentive", {
       method: "POST",
@@ -710,13 +710,13 @@ async function runCommerce(data) {
       addBubble(
         feedBuyer,
         "inc",
-        `<span class="tx-in">+$${bidAmt.toFixed(2)} USDC</span> merchant bid received\n${esc(productLabel)}\n60% yours $${cashback.toFixed(2)} · 40% agent $${agentReward.toFixed(2)}\nNet Human Cost $${nhc.toFixed(2)}\n${hashLine}`,
+        `<span class="tx-in">+$${bidAmt.toFixed(2)} USDC</span> x402 → buyer agent\n${esc(productLabel)}\n60% yours $${cashback.toFixed(2)} · 40% agent $${agentReward.toFixed(2)}\nNet Human Cost $${nhc.toFixed(2)}\n${hashLine}`,
         "payout",
       );
       addBubble(
         feedSeller,
         "inc",
-        `<span class="tx-out">−$${bidAmt.toFixed(2)} USDC</span> bid → buyer agent\n${esc(productLabel)}\n${hashLine}`,
+        `<span class="tx-out">−$${bidAmt.toFixed(2)} USDC</span> x402 bid → buyer agent\n${esc(productLabel)}\n${hashLine}`,
         "merchant",
       );
       state.stripeCashback += cashback;
