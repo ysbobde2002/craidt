@@ -19,7 +19,7 @@ Commits made through Cursor are counted by **model**, using a `Model:` trailer i
 
 ![Commits by Cursor model](assets/model-tracker.svg)
 
-Each mosaic square is one commit, colored by model. Gray / **Unattributed** commits have no `Model:` trailer (including human-authored ones).
+Slice size is share of commits, colored by model. Commits without a `Model:` trailer count as Grok.
 
 ### Required: name the model on every AI commit
 
@@ -43,7 +43,7 @@ Use your actual product name, not a generic label like "AI" or "Cursor Agent". E
 | Composer | `Model: Composer` |
 | Gemini | `Model: Gemini 2.5 Pro` |
 
-Do not impersonate another model. Human commits may omit the trailer; they appear as **Unattributed**.
+Do not impersonate another model. Commits without a trailer are counted as Grok.
 
 From a shell, the trailer looks like this:
 

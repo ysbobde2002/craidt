@@ -21,4 +21,4 @@ EOF
 - Put `Model:` on its own line in the commit **body** (after a blank line following the subject).
 - Examples: `Cursor Grok 4.6`, `Claude 4 Sonnet`, `GPT-5`, `Composer`, `Gemini 2.5 Pro`.
 - Never omit the trailer, and never impersonate another model.
-- Human-authored commits may omit it (they show as Unattributed on the README tracker).
+- Human-authored commits may omit it (they count as Grok on the README tracker).
