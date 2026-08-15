@@ -19,9 +19,11 @@ Without a Stripe key the charge is simulated; with `sk_test_…` it confirms Vis
 
 Commits made through Cursor are counted by **model**, using a `Model:` trailer in the commit message. The chart below is regenerated from git history on every push to `main`.
 
-![Commits by Cursor model](assets/model-tracker.svg)
+<p align="left">
+  <img alt="Commits by Cursor model" src="assets/model-pie.svg" width="280" />
+</p>
 
-Each mosaic square is one commit, colored by model. Gray / **Unattributed** commits have no `Model:` trailer (including human-authored ones).
+Slice size is share of commits, colored by model. Commits without a `Model:` trailer count as Grok.
 
 ### Required: name the model on every AI commit
 
@@ -45,7 +47,7 @@ Use your actual product name, not a generic label like "AI" or "Cursor Agent". E
 | Composer | `Model: Composer` |
 | Gemini | `Model: Gemini 2.5 Pro` |
 
-Do not impersonate another model. Human commits may omit the trailer; they appear as **Unattributed**.
+Do not impersonate another model. Commits without a trailer are counted as Grok.
 
 From a shell, the trailer looks like this:
 
@@ -64,4 +66,4 @@ EOF
 node scripts/generate-model-tracker.mjs
 ```
 
-That writes `assets/model-tracker.svg`. GitHub Actions runs the same command on push so the README chart stays current.
+That writes `assets/model-pie.svg`. GitHub Actions runs the same command on push so the README chart stays current.

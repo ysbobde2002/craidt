@@ -7,11 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=chips5" />
 </head>
 <body>
   <header class="header">
-    <div class="brand">craidt</div>
+    <a class="brand" href="/" aria-label="craidt">
+      <img class="brand-logo" src="/craidt-logo.png" alt="craidt · AI Identity & Credit Layer" />
+    </a>
     <div class="phases" id="phases">
       <div class="phase-step" data-phase="identity"><div class="phase-dot"></div><div class="phase-label">identity</div></div>
       <div class="phase-connector"></div>
@@ -34,9 +36,8 @@
   <div class="stage">
     <section class="panel" aria-label="Buyer agent">
       <div class="panel-head">
-        <div class="panel-icon">B</div>
-        <div class="panel-meta">
-          <div class="panel-name">Buyer Agent</div>
+        <div class="panel-brand">
+          <img class="panel-logo buyer-logo" src="/buyer-logo.png" alt="Buyer agent" />
           <div class="panel-sub">human-in-the-loop · craidt</div>
         </div>
         <div class="panel-actions">
@@ -59,13 +60,17 @@
                 <button class="tab-btn" type="button" data-tab="wallet-base">ETH</button>
               </div>
               <div class="tab-panel active" id="wallet-stripe">
-                <div class="pop-title">STRIPE TEST · BUYER</div>
-                <div class="stripe-card">
-                  <div class="stripe-card-name">VISA</div>
-                  <div class="stripe-card-num">•••• •••• •••• 4242</div>
-                  <div class="stripe-card-meta"><span>TEST MODE</span><span>BUYER</span></div>
+                <div class="pop-title" id="stripePopTitle">STRIPE DEMO · BUYER</div>
+                <div class="stripe-card" id="stripeCardVisual" data-mode="simulated">
+                  <div class="stripe-card-top">
+                    <div class="stripe-card-name" id="stripeCardBrand">VISA</div>
+                    <span class="stripe-card-badge" id="stripeCardBadge">SIMULATED</span>
+                  </div>
+                  <div class="stripe-card-num" id="stripeCardNum">•••• •••• •••• 4242</div>
+                  <div class="stripe-card-meta"><span id="stripeCardModeLabel">DEMO CARD</span><span>BUYER</span></div>
                 </div>
                 <div class="kv"><span>Card</span><strong id="stripeCard">Visa ···4242</strong></div>
+                <div class="kv"><span>Rail</span><strong id="stripeRail">Simulated</strong></div>
                 <div class="kv"><span>Cashback</span><strong id="stripeCashback">$0.00</strong></div>
                 <div class="pop-subtitle">RECENT CHARGES</div>
                 <div class="tx-list" id="stripeTxList"><div class="tx-empty">No transactions yet</div></div>
@@ -90,9 +95,8 @@
 
     <section class="panel" aria-label="Shopify UCP merchants">
       <div class="panel-head">
-        <div class="panel-icon shopify">S</div>
-        <div class="panel-meta">
-          <div class="panel-name">Shopify Merchants</div>
+        <div class="panel-brand">
+          <img class="panel-logo" src="/shopify-logo.svg?v=2" alt="Shopify" />
           <div class="panel-sub" id="merchantStatus">UCP · awaiting search</div>
         </div>
         <div class="panel-actions">
@@ -120,12 +124,13 @@
     </form>
     <div class="demo-prompts">
       <span>Try:</span>
-      <button class="prompt-chip" type="button" data-q="It's raining and I want to go out">rainy day</button>
-      <button class="prompt-chip" type="button" data-q="Find me chocolates under $10">chocolates &lt;$10</button>
-      <button class="prompt-chip" type="button" data-q="Buy running shoes under $50">shoes &lt;$50</button>
+      <button class="prompt-chip" type="button" data-q="It's raining and I want to go out">It's raining let's go out</button>
+      <button class="prompt-chip" type="button" data-q="I want to go out on a date. What should I get?">What to get for date</button>
+      <button class="prompt-chip" type="button" data-q="Find me chocolates under $10">Find me chocolates under $10</button>
+      <button class="prompt-chip" type="button" data-q="Buy running shoes under $50">Buy running shoes under $50</button>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=chat2"></script>
 </body>
 </html>

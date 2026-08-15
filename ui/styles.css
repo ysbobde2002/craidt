@@ -34,7 +34,7 @@ body {
 
 .header {
   border-bottom: 1px solid var(--border);
-  padding: 10px 20px;
+  padding: 8px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -55,10 +55,18 @@ body {
 }
 
 .brand {
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-logo {
+  height: 52px;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .phases {
@@ -108,11 +116,13 @@ body {
 .panel:has(.pop-wrap.open) { z-index: 40; }
 
 .panel-head {
-  padding: 12px 16px;
+  padding: 14px 16px 12px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 10px;
+  overflow: visible;
+  flex-shrink: 0;
 }
 
 .panel-icon {
@@ -128,15 +138,41 @@ body {
   flex-shrink: 0;
 }
 
-.panel-icon.shopify {
-  background: #f4fbf6;
-  border-color: rgba(10, 122, 47, 0.35);
-  color: var(--green);
+.panel-logo {
+  display: block;
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.panel-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  line-height: 0;
+}
+
+.panel-brand .panel-logo {
+  height: 32px;
+  width: auto;
+  padding: 2px 0;
+  box-sizing: content-box;
+}
+
+.panel-brand .buyer-logo {
+  height: 40px;
+  padding: 4px 0;
 }
 
 .panel-meta { flex: 1; min-width: 0; }
 .panel-name { font-size: 12px; font-weight: 500; }
 .panel-sub { font-size: 9px; color: var(--muted); margin-top: 1px; }
+.panel-brand .panel-sub { margin-top: 0; line-height: 1.4; }
 .panel-actions { display: flex; gap: 4px; }
 
 .pop-wrap { position: relative; }
@@ -395,7 +431,35 @@ body {
   flex-direction: column;
   justify-content: space-between;
 }
+.stripe-card[data-mode="simulated"] {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 7px,
+      rgba(255, 255, 255, 0.035) 7px,
+      rgba(255, 255, 255, 0.035) 8px
+    ),
+    #161616;
+}
+.stripe-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .stripe-card-name { font-size: 10px; letter-spacing: 0.16em; }
+.stripe-card-badge {
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
+.stripe-card[data-mode="simulated"] .stripe-card-badge {
+  background: rgba(255, 255, 255, 0.12);
+}
 .stripe-card-num { font-size: 11px; letter-spacing: 0.12em; }
 .stripe-card-meta { display: flex; justify-content: space-between; font-size: 8px; opacity: 0.75; }
 
@@ -452,9 +516,12 @@ body {
 .demo-prompts {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
+  max-width: 720px;
 }
 .prompt-chip {
   font: inherit;
@@ -465,6 +532,11 @@ body {
   background: var(--surface);
   cursor: pointer;
 }
+.demo-prompts .prompt-chip {
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
 .prompt-chip:hover { background: var(--card); border-color: var(--text); }
 .choice-row {
   display: flex;
@@ -473,10 +545,21 @@ body {
   margin-top: 8px;
 }
 .choice-row .prompt-chip { font-size: 10px; }
+.choice-chip:disabled {
+  cursor: default;
+  pointer-events: none;
+}
+.choice-chip.is-selected {
+  opacity: 1;
+  border-color: var(--text);
+  background: var(--card);
+}
+.choice-chip.is-spent { opacity: 0.4; }
 
 @media (max-width: 860px) {
   .stage { grid-template-columns: 1fr; padding: 8px; }
   .header { padding: 8px 12px; flex-wrap: nowrap; }
+  .brand-logo { height: 40px; }
   .phase-label { display: none; }
   .phase-connector { margin-bottom: 0; }
   .demo-footer { padding: 8px 12px 10px; }
