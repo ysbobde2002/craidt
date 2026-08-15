@@ -143,8 +143,8 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(config.port, () => {
-  console.log(`craidt demo  →  http://localhost:${config.port}`);
+server.listen(config.port, "0.0.0.0", () => {
+  console.log(`craidt demo  →  http://0.0.0.0:${config.port}`);
   console.log(`  Stripe     →  ${stripeConfigured() ? "test key loaded" : "simulated (set STRIPE_SECRET_KEY)"}`);
   console.log(`  OpenAI     →  ${openaiConfigured() ? config.openai.model : "regex fallback (set OPENAI_API_KEY)"}`);
   console.log(`  Base       →  ${config.base.rpcUrl}`);

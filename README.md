@@ -4,12 +4,14 @@ Split-screen agentic commerce: **buyer agent** on the left, **Shopify UCP mercha
 
 Purchase settles on **Stripe** (ACP-demo test-card flow). Merchant incentives and cashback live on **Base Sepolia**. Ranking still uses midnightx402 **Net Human Cost** with a conserved **60% user / 40% agent** split.
 
+**Live demo:** [craidt-railway-production.up.railway.app](https://craidt-railway-production.up.railway.app)
+
 ```bash
 cp .env.example .env   # then add STRIPE_SECRET_KEY=sk_test_… if you want live test charges
 npm run demo
 ```
 
-Open [http://localhost:5180](http://localhost:5180). The buyer chat captures intent with **OpenAI** first (`OPENAI_API_KEY`). Shopify UCP does not run until the agent has a **product** and a **budget**. Vague prompts like "it's raining and I want to go out" stay on the buyer side until they pick (umbrella vs boots) and name a budget.
+Open [http://localhost:5180](http://localhost:5180) locally, or the Railway URL above. The buyer chat captures intent with **OpenAI** first (`OPENAI_API_KEY`). Shopify UCP does not run until the agent has a **product** and a **budget**. Vague prompts like "it's raining and I want to go out" stay on the buyer side until they pick (umbrella vs boots) and name a budget.
 
 Without a Stripe key the charge is simulated; with `sk_test_…` it confirms Visa `···4242` like ACP-demo.
 
