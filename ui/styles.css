@@ -554,11 +554,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   font-size: 11px;
   color: var(--muted);
-  max-width: 720px;
+  max-width: 100%;
 }
 .prompt-chip {
   font: inherit;
