@@ -1,0 +1,12 @@
+{
+  "name": "craidt",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "node scripts/serve-demo.mjs",
+    "start": "node scripts/serve-demo.mjs",
+    "test": "node tests/eval.mjs",
+    "tracker": "node scripts/generate-model-tracker.mjs"
+  }
+}

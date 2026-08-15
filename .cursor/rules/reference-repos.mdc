@@ -1,0 +1,38 @@
+---
+description: Always use midnightx402 and ACP-demo as reference context
+alwaysApply: true
+---
+
+# Reference repos (read-only context)
+
+This workspace (`craidt`) uses two cloned repos as **constant reference**. Read them before designing or implementing. Do **not** push, commit, or copy secrets from them.
+
+| Repo | Local path | Remote |
+|---|---|---|
+| midnightx402 | `.context/midnightx402` | https://github.com/dhru7777/midnightx402 (`dheeraj/dev`) |
+| ACP-demo | `.context/ACP-demo` | https://github.com/dhru7777/ACP-demo (`main`) |
+
+Start with `.context/midnightx402/docs/dheeraj-agent-context.md` and `.context/ACP-demo/AGENTIC_COMMERCE_CONTEXT.md`.
+
+## midnightx402 — human-first commerce agent (TypeScript)
+
+Rain scoped cards + Monad + x402 + ERC-8004. Agent works for the human, not the highest bidder.
+
+```
+Net Human Cost = Money Spent - Confirmed cashback to the human
+```
+
+Decision order: hard constraints → min Net Human Cost → quality → agent earnings last. Wa1 never pays merchants from Monad; Rain settles the purchase; merchant incentive is a separate Wm→Wa1 USDC rail. Split is 60% user cashback / 40% agent. Orchestrator: Identity → Intent → Offer → Guardrails → Capacity → Rain → Incentive → Reputation.
+
+## ACP-demo — Nike buyer ↔ seller (Python)
+
+ACP JSON-RPC negotiation, dual-rail pay (x402 USDC on Base Sepolia + Stripe), ERC-8004 trust, Verifiable Intent hash chain. Seller is FastAPI (`seller_agent.py`); UI is `demo.html`.
+
+Layers: ACP (agree) → x402/Stripe (settle) → ERC-8004 (who) → VI (was pay in-bounds).
+
+## Rules
+
+- Treat clones as context, not this repo's git remote. Never `git push` from `.context/*`.
+- Do not commit `.context/`, `.env`, or wallet/Rain keys.
+- Prefer existing patterns from these repos (fail-closed, idempotent, no PII onchain) when building in `craidt`.
+- Rails in this repo: Stripe for purchase (not Rain), Base Sepolia for incentive/cashback (not Monad). Keep midnightx402 60/40 cashback and Net Human Cost.

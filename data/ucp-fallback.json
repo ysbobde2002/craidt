@@ -1,0 +1,92 @@
+{
+  "products": [
+    {
+      "id": "harbor-sea-salt",
+      "title": "Sea Salt Dark Chocolate Bar",
+      "merchantName": "Harbor Sweets",
+      "priceCents": 799,
+      "imageUrl": "",
+      "keywords": ["chocolate", "chocolates", "cocoa", "sweet"]
+    },
+    {
+      "id": "cocoa-box",
+      "title": "Assorted Truffle Box",
+      "merchantName": "Northline Confections",
+      "priceCents": 950,
+      "imageUrl": "",
+      "keywords": ["chocolate", "chocolates", "truffle"]
+    },
+    {
+      "id": "mint-bar",
+      "title": "Mint Crunch Chocolate",
+      "merchantName": "Field & Bean",
+      "priceCents": 649,
+      "imageUrl": "",
+      "keywords": ["chocolate", "chocolates", "mint"]
+    },
+    {
+      "id": "pegasus-run",
+      "title": "Aero Knit Running Shoe",
+      "merchantName": "Stride Co",
+      "priceCents": 4899,
+      "imageUrl": "",
+      "keywords": ["shoe", "shoes", "running", "sneaker"]
+    },
+    {
+      "id": "trail-low",
+      "title": "Trail Low Runner",
+      "merchantName": "Ridge Athletic",
+      "priceCents": 4299,
+      "imageUrl": "",
+      "keywords": ["shoe", "shoes", "running", "trail"]
+    },
+    {
+      "id": "daily-trainer",
+      "title": "Daily Trainer",
+      "merchantName": "Harbor Sports",
+      "priceCents": 3999,
+      "imageUrl": "",
+      "keywords": ["shoe", "shoes", "running", "trainer"]
+    },
+    {
+      "id": "usbc-brick",
+      "title": "USB-C 30W Charger",
+      "merchantName": "Volt Supply",
+      "priceCents": 1899,
+      "imageUrl": "",
+      "keywords": ["charger", "usb", "type c", "phone"]
+    },
+    {
+      "id": "usbc-cable",
+      "title": "Braided USB-C Cable",
+      "merchantName": "Grid Goods",
+      "priceCents": 1299,
+      "imageUrl": "",
+      "keywords": ["charger", "cable", "usb", "type c"]
+    },
+    {
+      "id": "storm-umbrella",
+      "title": "Compact Storm Umbrella",
+      "merchantName": "Harbor Dry Goods",
+      "priceCents": 1899,
+      "imageUrl": "",
+      "keywords": ["umbrella", "rain", "storm"]
+    },
+    {
+      "id": "rain-boots",
+      "title": "Rubber Rain Boots",
+      "merchantName": "Ridge Outdoor",
+      "priceCents": 3499,
+      "imageUrl": "",
+      "keywords": ["boot", "boots", "rain", "rubber"]
+    },
+    {
+      "id": "pack-raincoat",
+      "title": "Packable Raincoat",
+      "merchantName": "Field & Bean",
+      "priceCents": 4299,
+      "imageUrl": "",
+      "keywords": ["raincoat", "rain", "jacket", "poncho"]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>craidt · Buyer × Shopify UCP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">craidt</div>
+    <div class="phases" id="phases">
+      <div class="phase-step" data-phase="identity"><div class="phase-dot"></div><div class="phase-label">identity</div></div>
+      <div class="phase-connector"></div>
+      <div class="phase-step" data-phase="intent"><div class="phase-dot"></div><div class="phase-label">intent</div></div>
+      <div class="phase-connector"></div>
+      <div class="phase-step" data-phase="offers"><div class="phase-dot"></div><div class="phase-label">offers</div></div>
+      <div class="phase-connector"></div>
+      <div class="phase-step" data-phase="guardrails"><div class="phase-dot"></div><div class="phase-label">guardrails</div></div>
+      <div class="phase-connector"></div>
+      <div class="phase-step" data-phase="authorization"><div class="phase-dot"></div><div class="phase-label">authorization</div></div>
+      <div class="phase-connector"></div>
+      <div class="phase-step" data-phase="stripe"><div class="phase-dot"></div><div class="phase-label">stripe</div></div>
+      <div class="phase-connector"></div>
+      <div class="phase-step" data-phase="payout"><div class="phase-dot"></div><div class="phase-label">payout</div></div>
+      <div class="phase-connector"></div>
+      <div class="phase-step" data-phase="reputation"><div class="phase-dot"></div><div class="phase-label">reputation</div></div>
+    </div>
+  </header>
+
+  <div class="stage">
+    <section class="panel" aria-label="Buyer agent">
+      <div class="panel-head">
+        <div class="panel-icon">B</div>
+        <div class="panel-meta">
+          <div class="panel-name">Buyer Agent</div>
+          <div class="panel-sub">human-in-the-loop · craidt</div>
+        </div>
+        <div class="panel-actions">
+          <div class="pop-wrap" id="profileWrap">
+            <button class="profile-btn" type="button" title="Agent profile">A</button>
+            <div class="popover">
+              <div class="pop-title">PROFILE</div>
+              <div class="kv"><span>Agent</span><strong>craidt buyer</strong></div>
+              <div class="kv"><span>Identity</span><strong>ERC-8004 ready</strong></div>
+              <div class="kv"><span>Rule</span><strong>min Net Human Cost</strong></div>
+              <div class="kv"><span>Capacity</span><strong>$500</strong></div>
+            </div>
+          </div>
+          <div class="pop-wrap" id="walletWrap">
+            <button class="wallet-btn" type="button" title="Buyer wallets">$</button>
+            <div class="popover">
+              <div class="tab-bar" id="walletTabs">
+                <button class="tab-btn active" type="button" data-tab="wallet-stripe">Stripe</button>
+                <button class="tab-btn" type="button" data-tab="wallet-base">Base</button>
+              </div>
+              <div class="tab-panel active" id="wallet-stripe">
+                <div class="pop-title">STRIPE TEST · BUYER</div>
+                <div class="stripe-card">
+                  <div class="stripe-card-name">VISA</div>
+                  <div class="stripe-card-num">•••• •••• •••• 4242</div>
+                  <div class="stripe-card-meta"><span>TEST MODE</span><span>BUYER</span></div>
+                </div>
+                <div class="kv"><span>Card</span><strong id="stripeCard">Visa ···4242</strong></div>
+                <div class="kv"><span>Cashback</span><strong id="stripeCashback">$0.00</strong></div>
+                <div class="pop-subtitle">RECENT CHARGES</div>
+                <div class="tx-list" id="stripeTxList"><div class="tx-empty">No transactions yet</div></div>
+              </div>
+              <div class="tab-panel" id="wallet-base">
+                <div class="pop-title">BASE SEPOLIA · BUYER</div>
+                <div class="kv"><span>Network</span><strong>eip155:84532</strong></div>
+                <div class="kv"><span>USDC</span><strong id="baseUsdc">0.0000 USDC</strong></div>
+                <div class="pop-subtitle">RECENT TRANSACTIONS</div>
+                <div class="tx-list" id="baseTxList"><div class="tx-empty">No transactions yet</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feed" id="feedBuyer">
+        <div class="empty-hint">Type in the bar below to talk with the buyer agent. It will ask what to order before searching Shopify.</div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Shopify UCP merchants">
+      <div class="panel-head">
+        <div class="panel-icon shopify">S</div>
+        <div class="panel-meta">
+          <div class="panel-name">Shopify Merchants</div>
+          <div class="panel-sub" id="merchantStatus">UCP · awaiting search</div>
+        </div>
+        <div class="panel-actions">
+          <div class="pop-wrap">
+            <button class="wallet-btn" type="button" title="Merchant wallet">$</button>
+            <div class="popover pop-left">
+              <div class="pop-title">MERCHANT · BASE SEPOLIA</div>
+              <div class="kv"><span>USDC</span><strong id="sellerUsdc">—</strong></div>
+              <div class="pop-subtitle">RECENT TRANSACTIONS</div>
+              <div class="tx-list" id="sellerTxList"><div class="tx-empty">No transactions yet</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feed" id="feedSeller"></div>
+    </section>
+  </div>
+
+  <footer class="demo-footer">
+    <form class="input-bar" id="inputForm">
+      <input id="inputField" type="text" placeholder="It's raining and I want to go out…" autocomplete="off" autofocus />
+      <button type="submit" id="inputSend">→</button>
+    </form>
+    <div class="demo-prompts">
+      <span>Try:</span>
+      <button class="prompt-chip" type="button" data-q="It's raining and I want to go out">rainy day</button>
+      <button class="prompt-chip" type="button" data-q="Find me chocolates under $10">chocolates &lt;$10</button>
+      <button class="prompt-chip" type="button" data-q="Buy running shoes under $50">shoes &lt;$50</button>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,5 +1,14 @@
 # Agent instructions
 
+## Reference context
+
+Always treat these local clones as read-only product context (do not push them):
+
+- `.context/midnightx402` — https://github.com/dhru7777/midnightx402
+- `.context/ACP-demo` — https://github.com/dhru7777/ACP-demo
+
+See `.cursor/rules/reference-repos.mdc`.
+
 When committing to this repository, AI models **must** add a git trailer naming themselves:
 
 ```
