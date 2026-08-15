@@ -232,6 +232,14 @@ fetch("/api/wallets")
     const sellerBal = data.base?.sellerUsdc?.formatted;
     const sellerEl = document.getElementById("sellerUsdc");
     if (sellerEl && sellerBal) sellerEl.textContent = `${sellerBal} USDC`;
+    const sellerAddrEl = document.getElementById("sellerAddress");
+    const sellerAddr = data.base?.sellerAddress;
+    if (sellerAddrEl && sellerAddr) {
+      sellerAddrEl.textContent = `${sellerAddr.slice(0, 6)}…${sellerAddr.slice(-4)}`;
+    }
+    const sellerEthEl = document.getElementById("sellerEth");
+    const sellerEth = data.base?.sellerEth?.formatted;
+    if (sellerEthEl && sellerEth) sellerEthEl.textContent = `${Number(sellerEth).toFixed(4)} ETH`;
   })
   .catch(() => {});
 

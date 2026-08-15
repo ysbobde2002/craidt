@@ -42,7 +42,7 @@ export const config = {
     chainId: Number(env("ERC8004_CHAIN_ID", "11155111")),
     network: env("X402_NETWORK", "eip155:11155111"),
     buyerAddress: env("BUYER_WALLET_ADDRESS", "0x9f7A0813674F48d2f2824B5099fBbD68686764B3"),
-    sellerAddress: env("SELLER_PAYTO_ADDRESS"),
+    sellerAddress: env("SELLER_PAYTO_ADDRESS", "0x8873cD8D93D6FDee9d21F699723C90eeC783747e"),
     agentAddress: env("AGENT_WALLET_ADDRESS", "0x9f7A0813674F48d2f2824B5099fBbD68686764B3"),
     buyerPrivateKey: env("BUYER_WALLET_PRIVATE_KEY"),
     sellerPrivateKey: env("SELLER_WALLET_PRIVATE_KEY"),

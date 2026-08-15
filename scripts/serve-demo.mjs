@@ -120,11 +120,12 @@ const server = createServer(async (req, res) => {
 
     if (url.pathname === "/api/wallets" && req.method === "GET") {
       const network = baseNetwork();
-      const [buyerUsdc, sellerUsdc, agentUsdc, buyerEth] = await Promise.all([
+      const [buyerUsdc, sellerUsdc, agentUsdc, buyerEth, sellerEth] = await Promise.all([
         fetchUsdcBalance(network.buyerAddress).catch(() => null),
         fetchUsdcBalance(network.sellerAddress).catch(() => null),
         fetchUsdcBalance(network.agentAddress).catch(() => null),
         fetchEthBalance(network.buyerAddress).catch(() => null),
+        fetchEthBalance(network.sellerAddress).catch(() => null),
       ]);
       sendJson(res, 200, {
         stripe: stripeWallet(),
@@ -134,7 +135,7 @@ const server = createServer(async (req, res) => {
           webBase: config.scan8004.webBase,
           chainId: network.chainId,
         },
-        base: { ...network, buyerUsdc, sellerUsdc, agentUsdc, buyerEth },
+        base: { ...network, buyerUsdc, sellerUsdc, agentUsdc, buyerEth, sellerEth },
       });
       return;
     }
