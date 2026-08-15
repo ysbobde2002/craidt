@@ -29,6 +29,7 @@ export const config = {
     secretKey: env("STRIPE_SECRET_KEY"),
     publicKey: env("STRIPE_PUBLIC_KEY"),
     sellerSecretKey: env("STRIPE_SELLER_SECRET_KEY"),
+    sellerPublicKey: env("STRIPE_SELLER_PUBLIC_KEY"),
     sellerAccountId: env("STRIPE_SELLER_ACCOUNT_ID"),
     testPaymentMethod: env("STRIPE_TEST_PM", "pm_card_visa"),
     testCustomerId: env("STRIPE_TEST_CUSTOMER_ID"),
@@ -37,15 +38,27 @@ export const config = {
     rpcUrl: env("BASE_SEPOLIA_RPC", "https://sepolia.base.org"),
     usdc: env("USDC_CONTRACT_ADDRESS", "0x036CbD53842c5426634e7929541eC2318f3dCF7e"),
     explorer: env("EXPLORER_BASE_URL", "https://sepolia.basescan.org"),
-    chainId: 84532,
-    network: "eip155:84532",
+    chainId: Number(env("ERC8004_CHAIN_ID", "84532")),
+    network: env("X402_NETWORK", "eip155:84532"),
     buyerAddress: env("BUYER_WALLET_ADDRESS"),
     sellerAddress: env("SELLER_PAYTO_ADDRESS"),
     agentAddress: env("AGENT_WALLET_ADDRESS"),
+    buyerPrivateKey: env("BUYER_WALLET_PRIVATE_KEY"),
+    sellerPrivateKey: env("SELLER_WALLET_PRIVATE_KEY"),
   },
   openai: {
     apiKey: env("OPENAI_API_KEY"),
     model: env("OPENAI_MODEL", "gpt-4o-mini"),
+  },
+  scan8004: {
+    apiBase: env("SCAN8004_API_BASE", "https://testnet.8004scan.io/api/v1"),
+    webBase: env("SCAN8004_WEB_BASE", "https://testnet.8004scan.io"),
+    apiKey: env("SCAN8004_API_KEY"),
+    agentId: env("ERC8004_AGENT_ID"),
+  },
+  x402: {
+    facilitatorUrl: env("X402_FACILITATOR_URL", "https://x402.org/facilitator"),
+    network: env("X402_NETWORK", "eip155:84532"),
   },
 };
 
