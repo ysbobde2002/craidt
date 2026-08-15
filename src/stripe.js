@@ -69,9 +69,6 @@ export async function chargePurchase({ amountCents, offerId, offerName }) {
     "metadata[demo]": "craidt",
   };
   if (config.stripe.testCustomerId) params.customer = config.stripe.testCustomerId;
-  if (config.stripe.sellerAccountId.startsWith("acct_")) {
-    params["transfer_data[destination]"] = config.stripe.sellerAccountId;
-  }
 
   const intent = await stripeForm("/payment_intents", params, config.stripe.secretKey);
   if (!["succeeded", "requires_capture"].includes(intent.status)) {
