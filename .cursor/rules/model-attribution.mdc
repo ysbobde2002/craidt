@@ -1,0 +1,24 @@
+---
+description: Require AI models to name themselves on every commit
+alwaysApply: true
+---
+
+# Model attribution on commits
+
+If you are an AI model committing to this repo (including via Cursor), you **must** identify yourself in the commit body with a `Model:` git trailer. Use your product name, not a generic "AI" or "Cursor Agent".
+
+```
+git commit -m "$(cat <<'EOF'
+Short summary of the change.
+
+Optional body.
+
+Model: Cursor Grok 4.6
+EOF
+)"
+```
+
+- Put `Model:` on its own line in the commit **body** (after a blank line following the subject).
+- Examples: `Cursor Grok 4.6`, `Claude 4 Sonnet`, `GPT-5`, `Composer`, `Gemini 2.5 Pro`.
+- Never omit the trailer, and never impersonate another model.
+- Human-authored commits may omit it (they show as Unattributed on the README tracker).
