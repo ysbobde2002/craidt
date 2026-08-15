@@ -225,9 +225,11 @@ fetch("/api/wallets")
     if (ownerEl && addr) ownerEl.textContent = `${addr.slice(0, 6)}…${addr.slice(-5)}`;
     const idEl = document.getElementById("profileIdentity");
     if (idEl && data.scan8004) {
-      idEl.textContent = data.scan8004.agentId
-        ? `ERC-8004 #${data.scan8004.agentId}`
-        : "ERC-8004 pending mint";
+      const id = data.scan8004.agentId;
+      idEl.textContent = id ? `ERC-8004 #${id}` : "ERC-8004 pending mint";
+      if (id && data.scan8004.webBase) {
+        idEl.href = `${data.scan8004.webBase.replace(/\/$/, "")}/agents/sepolia/${id}`;
+      }
     }
     const sellerBal = data.base?.sellerUsdc?.formatted;
     const sellerEl = document.getElementById("sellerUsdc");
