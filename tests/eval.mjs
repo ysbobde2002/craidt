@@ -57,6 +57,8 @@ console.log("\n== rails: Stripe + Ethereum Sepolia, not Rain / Monad ==");
   assert("search bar is conversational", html.includes("It's raining and I want to go out"));
   assert("wallet tab is Stripe", html.includes("wallet-stripe") && /STRIPE (TEST|DEMO)/.test(html));
   assert("wallet tab is Ethereum Sepolia", html.includes("ETHEREUM SEPOLIA") && html.includes("eip155:11155111"));
+  assert("profile has ID Rank Feedback Verify", /data-tab="profile-identity"/.test(html) && /profile-ranking/.test(html) && /profile-verify/.test(html));
+  assert("wallet ETH tab has identity and verify", html.includes("AGENT IDENTITY") && html.includes("walletVerifyList"));
   assert("phase rail is stripe not rain", html.includes('data-phase="stripe"') && !html.includes('data-phase="rain"'));
   assert("HTML has no Monad", !/\bMonad\b/.test(html));
   assert("HTML has no Rain card/settle", !/RAIN SCOPED|Rain →|via Rain|wallet-rain|wallet-monad/i.test(html));

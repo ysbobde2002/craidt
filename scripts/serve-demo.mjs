@@ -17,6 +17,7 @@ import { createAuction, getAuction, publicAuction, tickAuction } from "../src/au
 import { stripeWallet } from "../src/stripe.js";
 import { baseNetwork, fetchEthBalance, fetchUsdcBalance } from "../src/base.js";
 import { settlePurchase } from "../src/settle.js";
+import { buildAgentIdentity } from "../src/identity.js";
 
 const UI_ROOT = join(ROOT, "ui");
 const MIME = {
@@ -120,6 +121,12 @@ const server = createServer(async (req, res) => {
         productId: String(body.productId ?? "").trim(),
       });
       sendJson(res, 200, receipt);
+      return;
+    }
+
+    if (url.pathname === "/api/agent/erc8004" && req.method === "GET") {
+      const identity = await buildAgentIdentity();
+      sendJson(res, identity.configured ? 200 : 503, identity);
       return;
     }
 

@@ -253,6 +253,130 @@ function renderStripeCard(stripe) {
   if (rail) rail.textContent = configured ? "Stripe test" : "Simulated";
 }
 
+function shortAddr(addr) {
+  if (!addr || addr.length < 12) return addr || "—";
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+}
+
+function scoreLine(value) {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  if (Number.isNaN(n)) return String(value);
+  const shown = Number.isInteger(n) ? n : Math.round(n * 100) / 100;
+  return `${shown} / 100`;
+}
+
+function verifyRowsHtml(links) {
+  return (links || [])
+    .filter((l) => l?.url)
+    .map(
+      (l) =>
+        `<div class="verify-row"><span>${esc(l.label)}</span><a href="${esc(l.url)}" target="_blank" rel="noreferrer">open ↗</a></div>`,
+    )
+    .join("") || `<div class="wallet-muted">No verify links yet.</div>`;
+}
+
+function rankRowsHtml(rank) {
+  const rows = [
+    ["Health score", scoreLine(rank?.healthScore)],
+    ["Popularity", scoreLine(rank?.popularity)],
+    ["Freshness", scoreLine(rank?.freshness)],
+    ["Metadata", scoreLine(rank?.metadataCompleteness)],
+    ["Quality", scoreLine(rank?.quality)],
+    ["Activity", scoreLine(rank?.activity)],
+    ["Wallet score", scoreLine(rank?.walletScore)],
+    ["Integrity", rank?.serviceIntegrity],
+    ["Discoverability", rank?.discoverability],
+  ].filter(([, v]) => v != null && v !== "");
+  if (!rows.length) return "";
+  return rows.map(([k, v]) => `<div class="kv"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join("");
+}
+
+function renderAgentIdentity(data) {
+  if (!data?.configured) {
+    const empty = document.getElementById("rankEmpty");
+    if (empty) empty.textContent = data?.error || "ERC-8004 agent not configured.";
+    return;
+  }
+  const id = data.sections?.identity || {};
+  const set = (elId, value) => {
+    const el = document.getElementById(elId);
+    if (el && value != null && value !== "") el.textContent = value;
+  };
+  set("idName", id.name || data.name);
+  set("idAgentId", `#${id.agentId ?? data.agentId}`);
+  set("idChain", id.chainLabel || data.chainLabel);
+  set("idGlobal", id.globalId || data.globalId);
+  set("idOwner", shortAddr(id.owner || data.owner));
+  set("idWallet", shortAddr(id.agentWallet || data.agentWallet));
+  set("idX402", id.x402Support === true ? "yes" : id.x402Support === false ? "no" : "—");
+  const trust = Array.isArray(id.supportedTrust) ? id.supportedTrust.join(", ") : "";
+  set("idTrust", trust || "reputation");
+
+  const rank = data.sections?.ranking || {};
+  const rankHtml = rankRowsHtml(rank);
+  const rankEmpty = document.getElementById("rankEmpty");
+  const rankRows = document.getElementById("rankRows");
+  if (rankHtml && rankRows) {
+    rankRows.innerHTML = rankHtml;
+    rankRows.hidden = false;
+    if (rankEmpty) rankEmpty.hidden = true;
+  } else if (rankEmpty) {
+    rankEmpty.hidden = false;
+    rankEmpty.textContent = "No ranking data from 8004scan yet. New agents start at zero until feedback is indexed.";
+  }
+
+  const fb = data.sections?.feedback || {};
+  set("fbTotal", String(fb.totalFeedbacks ?? 0));
+  set("fbAvg", fb.averageScore ? scoreLine(fb.averageScore) : "—");
+  set("fbStars", String(fb.starCount ?? 0));
+  set("fbWatch", String(fb.watchCount ?? 0));
+  set("fbVerified", fb.isVerified ? "yes" : "no");
+  const demo = document.getElementById("fbDemo");
+  if (demo) {
+    demo.textContent = state.fbCount
+      ? `${state.rankScore} / 100 · ${state.fbCount} rating${state.fbCount === 1 ? "" : "s"}`
+      : "none yet";
+  }
+
+  const links = data.sections?.verify?.links || data.verify || [];
+  const verifyList = document.getElementById("verifyList");
+  if (verifyList) verifyList.innerHTML = verifyRowsHtml(links);
+  const walletVerify = document.getElementById("walletVerifyList");
+  if (walletVerify) walletVerify.innerHTML = verifyRowsHtml(links);
+
+  set("walletAgentName", id.name || data.name);
+  set("walletAgentId", `#${id.agentId ?? data.agentId}`);
+  set("walletAgentOwner", shortAddr(id.owner || data.owner));
+  const health = scoreLine(rank.healthScore);
+  set("walletAgentRank", health || (state.rankScore ? `${state.rankScore} / 100 demo` : "awaiting 8004scan"));
+}
+
+function refreshDemoRank() {
+  const demo = document.getElementById("fbDemo");
+  if (demo) {
+    demo.textContent = state.fbCount
+      ? `${state.rankScore} / 100 · ${state.fbCount} rating${state.fbCount === 1 ? "" : "s"}`
+      : "none yet";
+  }
+  const walletRank = document.getElementById("walletAgentRank");
+  if (walletRank && state.rankScore) {
+    walletRank.textContent = `${state.rankScore} / 100 demo`;
+  }
+}
+
+function renderAgentIdentityError(message) {
+  const empty = document.getElementById("rankEmpty");
+  if (empty) empty.textContent = message;
+  const verifyList = document.getElementById("verifyList");
+  if (verifyList) verifyList.innerHTML = `<div class="wallet-muted">${esc(message)}</div>`;
+}
+
+fetch("/api/agent/erc8004")
+  .then((r) => r.json())
+  .then(renderAgentIdentity)
+  .catch(() => renderAgentIdentityError("Could not load ERC-8004 identity."));
+
 fetch("/api/wallets")
   .then((r) => r.json())
   .then((data) => {
@@ -268,17 +392,7 @@ fetch("/api/wallets")
     const addrEl = document.getElementById("baseAddress");
     const addr = data.base?.buyerAddress;
     if (addrEl && addr) {
-      addrEl.textContent = `${addr.slice(0, 6)}…${addr.slice(-5)}`;
-    }
-    const ownerEl = document.getElementById("profileOwner");
-    if (ownerEl && addr) ownerEl.textContent = `${addr.slice(0, 6)}…${addr.slice(-5)}`;
-    const idEl = document.getElementById("profileIdentity");
-    if (idEl && data.scan8004) {
-      const id = data.scan8004.agentId;
-      idEl.textContent = id ? `ERC-8004 #${id}` : "ERC-8004 pending mint";
-      if (id && data.scan8004.webBase) {
-        idEl.href = `${data.scan8004.webBase.replace(/\/$/, "")}/agents/sepolia/${id}`;
-      }
+      addrEl.textContent = `${addr.slice(0, 6)}…${addr.slice(-4)}`;
     }
     const sellerBal = data.base?.sellerUsdc?.formatted;
     const sellerEl = document.getElementById("sellerUsdc");
@@ -614,6 +728,7 @@ async function runCommerce(data) {
         state.fbTotal += v * 20;
         state.rankScore = Math.round(state.fbTotal / state.fbCount);
         updateWalletUI();
+        refreshDemoRank();
         setTimeout(resolve, 500);
       });
       setTimeout(() => {
@@ -626,6 +741,7 @@ async function runCommerce(data) {
         state.fbTotal += 80;
         state.rankScore = Math.round(state.fbTotal / state.fbCount);
         updateWalletUI();
+        refreshDemoRank();
         resolve();
       }, 3500);
     });

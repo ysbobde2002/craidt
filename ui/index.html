@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles.css?v=chips5" />
+  <link rel="stylesheet" href="/styles.css?v=identity1" />
 </head>
 <body>
   <header class="header">
@@ -42,14 +42,42 @@
         </div>
         <div class="panel-actions">
           <div class="pop-wrap" id="profileWrap">
-            <button class="profile-btn" type="button" title="Agent profile">A</button>
-            <div class="popover">
-              <div class="pop-title">PROFILE</div>
-              <div class="kv"><span>Agent</span><strong>craidt buyer</strong></div>
-              <div class="kv"><span>Identity</span><strong><a id="profileIdentity" href="https://testnet.8004scan.io/agents/sepolia/9638" target="_blank" rel="noreferrer">ERC-8004 #9638</a></strong></div>
-              <div class="kv"><span>Owner</span><strong id="profileOwner">0x8873…747e</strong></div>
-              <div class="kv"><span>Rule</span><strong>min Net Human Cost</strong></div>
-              <div class="kv"><span>Capacity</span><strong>$500</strong></div>
+            <button class="profile-btn" type="button" title="Agent profile">◎</button>
+            <div class="popover profile-pop">
+              <div class="pop-title">ERC-8004 · BUYER AGENT</div>
+              <div class="tab-bar profile-tab-bar" id="profileTabs">
+                <button class="tab-btn active" type="button" data-tab="profile-identity">ID</button>
+                <button class="tab-btn" type="button" data-tab="profile-ranking">Rank</button>
+                <button class="tab-btn" type="button" data-tab="profile-feedback">Feedback</button>
+                <button class="tab-btn" type="button" data-tab="profile-verify">Verify</button>
+              </div>
+              <div class="tab-panel active" id="profile-identity">
+                <div class="kv"><span>Agent</span><strong id="idName">craidt-buyer-agent</strong></div>
+                <div class="kv"><span>Agent ID</span><strong id="idAgentId">#9638</strong></div>
+                <div class="kv"><span>Chain</span><strong id="idChain">Ethereum Sepolia</strong></div>
+                <div class="kv kv-wrap"><span>Global ID</span><strong id="idGlobal">eip155:11155111:…:9638</strong></div>
+                <div class="kv"><span>Owner</span><strong id="idOwner">0x8873…747e</strong></div>
+                <div class="kv"><span>Agent wallet</span><strong id="idWallet">0x8873…747e</strong></div>
+                <div class="kv"><span>x402</span><strong id="idX402">yes</strong></div>
+                <div class="kv"><span>Trust</span><strong id="idTrust">reputation</strong></div>
+              </div>
+              <div class="tab-panel" id="profile-ranking">
+                <div class="wallet-muted" id="rankEmpty">Loading 8004scan ranks…</div>
+                <div id="rankRows" hidden></div>
+              </div>
+              <div class="tab-panel" id="profile-feedback">
+                <div class="kv"><span>On-chain feedbacks</span><strong id="fbTotal">0</strong></div>
+                <div class="kv"><span>Average score</span><strong id="fbAvg">—</strong></div>
+                <div class="kv"><span>Demo ratings</span><strong id="fbDemo">none yet</strong></div>
+                <div class="kv"><span>Stars</span><strong id="fbStars">0</strong></div>
+                <div class="kv"><span>Watchers</span><strong id="fbWatch">0</strong></div>
+                <div class="kv"><span>Verified</span><strong id="fbVerified">no</strong></div>
+              </div>
+              <div class="tab-panel" id="profile-verify">
+                <div class="verify-list" id="verifyList">
+                  <div class="wallet-muted">Loading verify links…</div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="pop-wrap" id="walletWrap">
@@ -81,6 +109,13 @@
                 <div class="kv"><span>Address</span><strong id="baseAddress">0x8873…747e</strong></div>
                 <div class="kv"><span>ETH</span><strong id="baseEth">0.0000 ETH</strong></div>
                 <div class="kv"><span>USDC</span><strong id="baseUsdc">0.0000 USDC</strong></div>
+                <div class="pop-subtitle">AGENT IDENTITY</div>
+                <div class="kv"><span>Agent</span><strong id="walletAgentName">craidt-buyer-agent</strong></div>
+                <div class="kv"><span>ERC-8004</span><strong id="walletAgentId">#9638</strong></div>
+                <div class="kv"><span>Owner</span><strong id="walletAgentOwner">0x8873…747e</strong></div>
+                <div class="kv"><span>Health</span><strong id="walletAgentRank">awaiting 8004scan</strong></div>
+                <div class="pop-subtitle">VERIFY</div>
+                <div class="verify-list" id="walletVerifyList"></div>
                 <div class="pop-subtitle">RECENT TRANSACTIONS</div>
                 <div class="tx-list" id="baseTxList"><div class="tx-empty">No transactions yet</div></div>
               </div>
@@ -131,6 +166,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=chat2"></script>
+  <script src="app.js?v=identity1"></script>
 </body>
 </html>
