@@ -20,6 +20,7 @@ let state = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "null") || {
 let sessionId = null;
 let intentSessionId = null;
 let clarifying = false;
+let lastChoiceSet = [];
 let bids = [];
 let recommendedProductId = null;
 let pollTimer = null;
@@ -90,10 +91,27 @@ function updateWalletUI() {
   saveState();
 }
 
+const buyerPops = [
+  document.getElementById("profileWrap"),
+  document.getElementById("walletWrap"),
+].filter(Boolean);
+
+function closeOpenPops(except) {
+  document.querySelectorAll(".pop-wrap.open").forEach((w) => {
+    if (w !== except) w.classList.remove("open");
+  });
+}
+
 document.querySelectorAll(".pop-wrap").forEach((wrap) => {
   wrap.querySelector("button")?.addEventListener("click", (e) => {
     e.stopPropagation();
-    wrap.classList.toggle("open");
+    const opening = !wrap.classList.contains("open");
+    if (opening && buyerPops.includes(wrap)) {
+      buyerPops.forEach((w) => {
+        if (w !== wrap) w.classList.remove("open");
+      });
+    }
+    wrap.classList.toggle("open", opening);
   });
   wrap.querySelector(".popover")?.addEventListener("click", (e) => e.stopPropagation());
 });
@@ -101,6 +119,9 @@ document.addEventListener("click", (e) => {
   document.querySelectorAll(".pop-wrap.open").forEach((w) => {
     if (!w.contains(e.target)) w.classList.remove("open");
   });
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeOpenPops();
 });
 
 document.querySelectorAll(".tab-bar").forEach((bar) => {
@@ -200,14 +221,42 @@ async function pollBids() {
 updateWalletUI();
 inputField.focus();
 
+function renderStripeCard(stripe) {
+  if (!stripe) return;
+  const configured = Boolean(stripe.configured);
+  const brand = String(stripe.cardBrand || "visa").toLowerCase();
+  const last4 = String(stripe.cardLast4 || "4242");
+  const brandLabel = brand === "mastercard" ? "Mastercard" : "Visa";
+
+  const visual = document.getElementById("stripeCardVisual");
+  if (visual) visual.dataset.mode = configured ? "test" : "simulated";
+
+  const nameEl = document.getElementById("stripeCardBrand");
+  if (nameEl) nameEl.textContent = brand.toUpperCase();
+
+  const numEl = document.getElementById("stripeCardNum");
+  if (numEl) numEl.textContent = `•••• •••• •••• ${last4}`;
+
+  const badge = document.getElementById("stripeCardBadge");
+  if (badge) badge.textContent = configured ? "TEST MODE" : "SIMULATED";
+
+  const modeLabel = document.getElementById("stripeCardModeLabel");
+  if (modeLabel) modeLabel.textContent = configured ? "STRIPE TEST" : "DEMO CARD";
+
+  const title = document.getElementById("stripePopTitle");
+  if (title) title.textContent = configured ? "STRIPE TEST · BUYER" : "STRIPE DEMO · BUYER";
+
+  const card = document.getElementById("stripeCard");
+  if (card) card.textContent = `${brandLabel} ···${last4}`;
+
+  const rail = document.getElementById("stripeRail");
+  if (rail) rail.textContent = configured ? "Stripe test" : "Simulated";
+}
+
 fetch("/api/wallets")
   .then((r) => r.json())
   .then((data) => {
-    const card = document.getElementById("stripeCard");
-    if (card && data.stripe) {
-      const sim = data.stripe.configured ? "" : " · simulated";
-      card.textContent = `${data.stripe.cardBrand} ···${data.stripe.cardLast4}${sim}`;
-    }
+    renderStripeCard(data.stripe);
     const formatted = data.base?.buyerUsdc?.formatted;
     if (formatted) {
       state.baseUsdc = Number(formatted) || state.baseUsdc;
@@ -219,10 +268,30 @@ fetch("/api/wallets")
   })
   .catch(() => {});
 
+function sameChoices(a, b) {
+  if (!a?.length || !b?.length || a.length !== b.length) return false;
+  const na = [...a].map((s) => String(s).toLowerCase()).sort();
+  const nb = [...b].map((s) => String(s).toLowerCase()).sort();
+  return na.every((v, i) => v === nb[i]);
+}
+
+function lockPreviousChoices(selectedText) {
+  const selected = String(selectedText || "").trim().toLowerCase();
+  feedBuyer.querySelectorAll(".choice-chip:not(:disabled)").forEach((btn) => {
+    btn.disabled = true;
+    const q = String(btn.dataset.q || "").trim().toLowerCase();
+    btn.classList.toggle("is-selected", Boolean(selected) && q === selected);
+    btn.classList.toggle("is-spent", !btn.classList.contains("is-selected"));
+  });
+}
+
 function addAgentAsk(message, options) {
+  let opts = (options || []).map((o) => String(o).trim()).filter(Boolean);
+  if (sameChoices(opts, lastChoiceSet)) opts = [];
+  lastChoiceSet = opts;
   const wrap = document.createElement("div");
   wrap.className = "bwrap recv";
-  const chips = (options || [])
+  const chips = opts
     .map((opt) => `<button type="button" class="prompt-chip choice-chip" data-q="${esc(opt)}">${esc(opt)}</button>`)
     .join("");
   wrap.innerHTML = `
@@ -251,6 +320,7 @@ inputForm.addEventListener("submit", async (e) => {
   if (!followUp) {
     feedBuyer.innerHTML = "";
     feedSeller.innerHTML = "";
+    lastChoiceSet = [];
     resetPhases();
     intentSessionId = null;
     sessionId = null;
@@ -265,6 +335,7 @@ inputForm.addEventListener("submit", async (e) => {
   }
 
   addBubble(feedBuyer, "out", esc(text), "you");
+  lockPreviousChoices(text);
 
   try {
     const res = await fetch("/api/turn", {

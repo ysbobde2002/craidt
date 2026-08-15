@@ -40,3 +40,16 @@ export async function chatJson({ system, messages }) {
   const raw = data.choices?.[0]?.message?.content || "{}";
   return JSON.parse(stripJson(raw));
 }
+
+/** Normalize intent JSON so omitted options become [] (never undefined / leftover). */
+export function parseIntentJson(json) {
+  const options = Array.isArray(json?.options)
+    ? json.options.map((o) => String(o).trim()).filter(Boolean).slice(0, 4)
+    : [];
+  return {
+    query: String(json?.query || "").trim(),
+    max_price: json?.max_price ?? null,
+    options,
+    response_message: String(json?.response_message || "").trim(),
+  };
+}
